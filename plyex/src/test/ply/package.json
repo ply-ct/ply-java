@@ -1,0 +1,11 @@
+{
+  "name": "ply-java",
+  "version": "0.1.1",
+  "description": "Ply tests for ply-java",
+  "engines": {
+    "node": ">=12"
+  },
+  "devDependencies": {
+    "@ply-ct/ply": "^3.0.19"
+  }
+}

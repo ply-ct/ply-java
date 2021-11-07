@@ -1,0 +1,58 @@
+getGreetings:
+  request:
+    url: ${baseUrl}/greetings
+    method: GET
+    headers:
+      Accept: application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      content-type: application/json; charset=utf-8
+    body: |-
+      [
+        {
+          "name": "World",
+          "salutation": "Hello"
+        },
+        {
+          "name": "Cruel World",
+          "salutation": "Goodbye"
+        }
+      ]
+getGreeting:
+  request:
+    url: ${baseUrl}/greetings/World
+    method: GET
+    headers:
+      Accept: application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      content-type: application/json; charset=utf-8
+    body: |-
+      {
+        "name": "World",
+        "salutation": "Hello"
+      }
+getGreetingNotFound:
+  url: ${baseUrl}/greetings/Nobody
+  method: GET
+  headers:
+    Accept: application/json
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      content-type: application/json; charset=utf-8
+    body: |-
+      {
+        "status": {
+          "code": 404,
+          "message": "Not Found"
+        }
+      }

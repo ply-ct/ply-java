@@ -1,0 +1,21 @@
+putGreeting:
+  url: ${baseUrl}/greetings/World
+  method: PUT
+  headers:
+    Content-Type: application/json
+  body: |-
+    {
+      "salutation": "Hey There",
+      "name": "Stranger"
+    }
+
+putGreetingNotFound:
+  url: ${baseUrl}/greetings/Nobody
+  method: PUT
+  headers:
+    Content-Type: application/json
+  body: |-
+    {
+      "salutation": "Hail",
+      "name": "Somebody"
+    }

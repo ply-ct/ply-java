@@ -1,0 +1,18 @@
+getGreetings:
+  url: ${baseUrl}/greetings
+  method: GET
+  headers:
+    Accept: application/json
+
+getGreeting:
+  url: ${baseUrl}/greetings/World
+  method: GET
+  headers:
+    Accept: application/json
+
+getGreetingNotFound:
+  url: ${baseUrl}/greetings/Nobody
+  method: GET
+  headers:
+    Accept: application/json
+

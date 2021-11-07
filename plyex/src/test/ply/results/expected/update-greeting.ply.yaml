@@ -1,0 +1,47 @@
+putGreeting:
+  url: ${baseUrl}/greetings/World
+  method: PUT
+  headers:
+    Content-Type: application/json
+  body: |-
+    {
+      "salutation": "Hey There",
+      "name": "Stranger"
+    }
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      content-type: application/json; charset=utf-8
+      location: /greetings/Cowboy
+    body: |-
+      {
+        "status": {
+          "code": 200,
+          "message": "OK"
+        }
+      }
+putGreetingNotFound:
+  url: ${baseUrl}/greetings/Nobody
+  method: PUT
+  headers:
+    Content-Type: application/json
+  body: |-
+    {
+      "salutation": "Hail",
+      "name": "Somebody"
+    }
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      content-type: application/json; charset=utf-8
+    body: |-
+      {
+        "status": {
+          "code": 404,
+          "message": "Not Found"
+        }
+      }

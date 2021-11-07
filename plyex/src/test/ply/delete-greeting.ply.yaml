@@ -1,0 +1,12 @@
+deleteGreeting:
+  url: ${baseUrl}/greetings/World
+  method: DELETE
+  headers:
+    Accept: application/json
+
+deleteGreetingNotFound:
+  url: ${baseUrl}/greetings/Nobody
+  method: DELETE
+  headers:
+    Accept: application/json
+
