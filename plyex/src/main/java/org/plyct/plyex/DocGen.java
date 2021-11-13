@@ -9,8 +9,8 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import org.plyct.plyex.openapi.OpenApi;
+import org.plyct.plyex.openapi.YamlDoc;
 
 public class DocGen {
 
@@ -25,7 +25,7 @@ public class DocGen {
         if (contents.startsWith("{") || contents.startsWith("[")) {
             openApi = new Gson().fromJson(contents, OpenApi.class);
         } else {
-            openApi = new Yaml(new Constructor(OpenApi.class)).load(contents);
+            openApi = new YamlDoc().load(contents);
         }
 
         Plyex plyex = new Plyex(options);

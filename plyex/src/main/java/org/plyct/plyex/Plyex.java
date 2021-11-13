@@ -1,5 +1,6 @@
 package org.plyct.plyex;
 
+import org.plyct.plyex.openapi.OpenApi;
 import org.plyct.plyex.plugin.PlyexPlugin;
 
 import java.util.ArrayList;
