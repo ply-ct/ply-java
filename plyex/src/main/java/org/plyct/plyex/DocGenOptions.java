@@ -3,6 +3,7 @@ package org.plyct.plyex;
 import com.beust.jcommander.Parameter;
 import org.plyct.plyex.util.CommaSplitter;
 
+import java.io.File;
 import java.util.List;
 
 public class DocGenOptions {
@@ -41,8 +42,8 @@ public class DocGenOptions {
     @Parameter(names = "--overwrite", description = "TODO: Overwrite what?")
     private boolean overwrite;
     public boolean isOverwrite() { return this.overwrite; }
-    public DocGenOptions overwrite(boolean overwrite) {
-        this.overwrite = overwrite;
+    public DocGenOptions overwrite() {
+        this.overwrite = true;
         return this;
     }
 
@@ -51,6 +52,14 @@ public class DocGenOptions {
     public boolean isDebug() { return this.debug; }
     public DocGenOptions debug() {
         this.debug = true;
+        return this;
+    }
+
+    @Parameter(names = "--addMissingOperations", description = "Add path operations missing from OpenAPI")
+    private boolean addMissingOperations;
+    public boolean isAddMissingOperations() { return this.addMissingOperations; }
+    public DocGenOptions addMissingOperations() {
+        this.addMissingOperations = true;
         return this;
     }
 

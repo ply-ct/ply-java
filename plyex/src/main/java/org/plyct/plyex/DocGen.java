@@ -1,10 +1,16 @@
 package org.plyct.plyex;
 
-import com.beust.jcommander.DefaultUsageFormatter;
 import com.beust.jcommander.JCommander;
+import com.google.gson.Gson;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 public class DocGen {
 
@@ -13,11 +19,19 @@ public class DocGen {
         this.options = options;
     }
 
-    public OpenApi doAugment() {
+    public OpenApi doAugment() throws IOException {
+        String contents = new String(Files.readAllBytes(new File(options.getOpenApi()).toPath()));
+        OpenApi openApi;
+        if (contents.startsWith("{") || contents.startsWith("[")) {
+            openApi = new Gson().fromJson(contents, OpenApi.class);
+        } else {
+            openApi = new Yaml(new Constructor(OpenApi.class)).load(contents);
+        }
+
         Plyex plyex = new Plyex(options);
         // TODO write output
         try {
-            return plyex.augment(null);
+            return plyex.augment(openApi);
         } catch (DocGenException ex) {
             if (this.options.isDebug()) ex.printStackTrace();
             System.err.println("DocGen error: " + ex);

@@ -18,6 +18,13 @@ public class Plyex {
     }
 
     public OpenApi augment(OpenApi openApi) throws DocGenException {
+        List<PlyMethod> plyMethods = this.getPlyMethods();
+
+
+        return openApi;
+    }
+
+    protected List<PlyMethod> getPlyMethods() throws DocGenException {
         List<PlyMethod> plyMethods = new DocGenCompiler(this.options).process();
         try {
             PlyexPlugin plyexPlugin = this.getPlugin();
@@ -43,7 +50,7 @@ public class Plyex {
                 }
             }
             plyMethods.addAll(extraPlyMethods);
-            return openApi; // TODO clone
+            return plyMethods;
         } catch (ReflectiveOperationException ex) {
             throw new DocGenException("Cannot instantiate plugin: " + this.options.getPlugin(), ex);
         }
