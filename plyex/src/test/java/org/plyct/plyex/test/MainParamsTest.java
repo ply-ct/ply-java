@@ -2,7 +2,7 @@ package org.plyct.plyex.test;
 
 import com.beust.jcommander.JCommander;
 import org.junit.jupiter.api.Test;
-import org.plyct.plyex.DocGen;
+import org.plyct.plyex.DocGenOptions;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,12 +11,12 @@ public class MainParamsTest {
     @Test
     void parseParams() {
         String[] args = new String[]{
-                "-sources", "SourceOne.java, path/to/SourceTwo.java,windows\\path\\to\\SourceThree.java ",
-                "-packages", "package.one ,  package.sub.two",
-                "-overwrite"
+                "--sources", "SourceOne.java, path/to/SourceTwo.java,windows\\path\\to\\SourceThree.java ",
+                "--overwrite",
+                "openapi/greetings.yaml"
         };
 
-        DocGen.Options options = new DocGen.Options();
+        DocGenOptions options = new DocGenOptions();
         JCommander.newBuilder()
                 .addObject(options)
                 .build()
@@ -26,10 +26,7 @@ public class MainParamsTest {
         assertEquals("SourceOne.java", options.getSources().get(0));
         assertEquals("path/to/SourceTwo.java", options.getSources().get(1));
         assertEquals("windows\\path\\to\\SourceThree.java", options.getSources().get(2));
-
-        assertEquals(2, options.getPackages().size());
-        assertEquals("package.one", options.getPackages().get(0));
-        assertEquals("package.sub.two", options.getPackages().get(1));
+        assertEquals("openapi/greetings.yaml", options.getOpenApi());
 
         assertTrue(options.isOverwrite());
     }

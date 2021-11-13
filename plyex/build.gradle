@@ -4,7 +4,15 @@ plugins {
 }
 
 group 'org.ply-ct'
-version '0.0.1-SNAPSHOT'
+version '0.1.0'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
 
 publishing {
     publications {
@@ -22,12 +30,12 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.reflections:reflections:0.10.2'
     implementation 'com.google.testing.compile:compile-testing:0.11', {
         exclude group: 'com.sun', module: 'tools'
     }
     implementation 'com.beust:jcommander:1.81'
     implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'org.springframework:spring-web:5.3.12'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'

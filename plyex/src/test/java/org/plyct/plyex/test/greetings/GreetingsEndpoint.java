@@ -22,7 +22,7 @@ public class GreetingsEndpoint {
      */
     @Ply(responses={"retrieve-greetings.ply.yaml#getGreeting", "retrieve-greetings.ply.yaml#getGreetingNotFound"})
     public Greeting getGreeting() {
-        // GET /greetings/name
+        // GET /greetings/{name}
         return new Greeting("Hello", "World");
     }
 

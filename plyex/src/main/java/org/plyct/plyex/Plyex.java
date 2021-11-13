@@ -1,41 +1,56 @@
 package org.plyct.plyex;
 
-import java.io.IOException;
-import java.nio.file.Paths;
+import org.plyct.plyex.plugin.PlyexPlugin;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Plyex {
 
-    private DocGen.Options options;
-    public DocGen.Options getOptions() { return options; }
+    private final DocGenOptions options;
 
-    public Plyex(DocGen.Options options) {
+    public DocGenOptions getOptions() {
+        return options;
+    }
+
+    public Plyex(DocGenOptions options) {
         this.options = options;
     }
 
-    public OpenApi augment(OpenApi openApi) throws IOException {
-        new PseudoCompiler(Paths.get(this.options.getRoot()),
-                this.options.getSources(), this.options.isDebug()).doCompile();
-
-//        List<PlyMethod> plyMethods = this.findPlyMethods();
-//        for (PlyMethod plyMethod : plyMethods) {
-//            System.out.println("\nPLY METHOD: " + plyMethod.getMethod().getName());
-//            Class clazz = plyMethod.getMethod().getDeclaringClass();
-//            System.out.println("CLASS: " + clazz.getCanonicalName());
-//        }
-
-        // compiler for comments
-
-        return openApi; // TODO clone
-    }
-
-    List<PlyMethod> findPlyMethods() {
-        List<PlyMethod> plyMethods = new ArrayList<>();
-        for (String pkg : this.options.getPackages()) {
-            plyMethods.addAll(new Scanner(pkg).getPlyMethods());
+    public OpenApi augment(OpenApi openApi) throws DocGenException {
+        List<PlyMethod> plyMethods = new DocGenCompiler(this.options).process();
+        try {
+            PlyexPlugin plyexPlugin = this.getPlugin();
+            List<PlyMethod> extraPlyMethods = new ArrayList<>();
+            for (PlyMethod plyMethod : plyMethods) {
+                Endpoint[] endpoints = plyexPlugin.getEndpoints(plyMethod.getMethod());
+                if (endpoints == null || endpoints.length == 0) {
+                    System.out.println("Endpoint not found for ply method: " + plyMethod);
+                } else {
+                    plyMethod.setEndpoint(endpoints[0]);
+                    if (endpoints.length > 1) {
+                        for (int i = 1; i < endpoints.length; i++) {
+                            PlyMethod extraPlyMethod = new PlyMethod(
+                                    plyMethod.getPackageName(),
+                                    plyMethod.getClassName(),
+                                    plyMethod.getName(),
+                                    plyMethod.getSignature()
+                            );
+                            plyMethod.setEndpoint(endpoints[i]);
+                            extraPlyMethods.add(extraPlyMethod);
+                        }
+                    }
+                }
+            }
+            plyMethods.addAll(extraPlyMethods);
+            return openApi; // TODO clone
+        } catch (ReflectiveOperationException ex) {
+            throw new DocGenException("Cannot instantiate plugin: " + this.options.getPlugin(), ex);
         }
-        return plyMethods;
     }
 
+    private PlyexPlugin getPlugin() throws ReflectiveOperationException {
+        Class<? extends PlyexPlugin> pluginClass = Class.forName(this.options.getPlugin()).asSubclass(PlyexPlugin.class);
+        return pluginClass.getDeclaredConstructor().newInstance();
+    }
 }
