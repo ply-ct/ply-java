@@ -1,5 +1,7 @@
 package org.plyct.plyex.openapi;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Map;
 
 public class OpenApi {
@@ -35,6 +37,7 @@ public class OpenApi {
     }
 
     public static class BodyContent {
+        @SerializedName("application/json")
         public JsonMedia applicationJson; // 'application/json'
         public JsonMedia getApplicationJson() { return applicationJson; }
         public void setApplicationJson(JsonMedia applicationJson) { this.applicationJson = applicationJson; }
@@ -46,6 +49,7 @@ public class OpenApi {
     }
 
     public static class Schema {
+        @SerializedName("$ref")
         public String ref; // $ref
         public String getRef() { return ref; }
         public void setRef(String ref) { this.ref = ref; }
@@ -54,6 +58,7 @@ public class OpenApi {
     }
 
     public static class Items {
+        @SerializedName("$ref")
         public String ref; // $ref
         public String getRef() { return ref; }
         public void setRef(String ref) { this.ref = ref; }

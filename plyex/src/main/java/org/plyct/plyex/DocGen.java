@@ -1,16 +1,15 @@
 package org.plyct.plyex;
 
 import com.beust.jcommander.JCommander;
-import com.google.gson.Gson;
+import org.plyct.plyex.openapi.JsonDoc;
+import org.plyct.plyex.openapi.OpenApi;
+import org.plyct.plyex.openapi.YamlDoc;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
-
-import org.plyct.plyex.openapi.OpenApi;
-import org.plyct.plyex.openapi.YamlDoc;
 
 public class DocGen {
 
@@ -23,7 +22,7 @@ public class DocGen {
         String contents = new String(Files.readAllBytes(new File(options.getOpenApi()).toPath()));
         OpenApi openApi;
         if (contents.startsWith("{") || contents.startsWith("[")) {
-            openApi = new Gson().fromJson(contents, OpenApi.class);
+            openApi = new JsonDoc().load(contents);
         } else {
             openApi = new YamlDoc().load(contents);
         }
