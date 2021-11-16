@@ -12,7 +12,7 @@ import org.yaml.snakeyaml.nodes.Tag;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class YamlDoc {
+public class YamlDoc implements ApiDoc {
 
     private final Yaml yaml;
 

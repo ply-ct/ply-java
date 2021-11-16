@@ -1,7 +1,10 @@
 package org.plyct.plyex;
 
+import org.plyct.plyex.openapi.OpenApi;
+
 public class Endpoint {
-    public enum HttpMethod {
+
+    public enum Method {
         get,
         post,
         put,
@@ -9,18 +12,18 @@ public class Endpoint {
         delete
     }
 
-    public Endpoint(HttpMethod method, String path) {
+    public Endpoint(Method method, String path) {
         this.method = method;
         this.path = path;
     }
 
-    public Endpoint(HttpMethod method, String path, boolean lastSegmentOptional) {
+    public Endpoint(Method method, String path, boolean lastSegmentOptional) {
         this(method, path);
         this.lastSegmentOptional = lastSegmentOptional;
     }
 
-    private HttpMethod method;
-    public HttpMethod getMethod() { return this.method; }
+    private Method method;
+    public Method getMethod() { return this.method; }
 
     /**
      * Path parameters are indicated by curly braces (eg: /greetings/{name}

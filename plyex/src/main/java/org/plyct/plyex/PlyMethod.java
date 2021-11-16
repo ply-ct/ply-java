@@ -42,10 +42,6 @@ public class PlyMethod {
     public String getDocComment() { return this.docComment; }
     public void setDocComment(String docComment) { this.docComment = docComment; }
 
-    private MethodMeta meta;
-    public MethodMeta getMeta() { return this.meta; }
-    public void setMeta(MethodMeta meta) { this.meta = meta; }
-
     private Method method;
     public Method getMethod() { return this.method; }
 

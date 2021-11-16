@@ -2,7 +2,7 @@ package org.plyct.plyex.test;
 
 import org.junit.jupiter.api.Test;
 import org.plyct.plyex.Endpoint;
-import static org.plyct.plyex.Endpoint.HttpMethod.*;
+import static org.plyct.plyex.Endpoint.Method.*;
 import org.plyct.plyex.spring.PlyexSpring;
 import org.plyct.plyex.test.spring.ClassMethod;
 import org.plyct.plyex.test.spring.MethodMappings;

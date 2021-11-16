@@ -1,7 +1,9 @@
 package org.plyct.plyex.openapi;
 
 import com.google.gson.annotations.SerializedName;
+import org.plyct.plyex.Endpoint;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class OpenApi {
@@ -19,6 +21,36 @@ public class OpenApi {
         public Operation put;
         public Operation patch;
         public Operation delete;
+
+        public Map<String, Operation> operations() {
+            Map<String,Operation> operations = new HashMap<>();
+            if (this.get != null) operations.put("get", this.get);
+            if (this.post != null) operations.put("post", this.get);
+            if (this.put != null) operations.put("put", this.get);
+            if (this.patch != null) operations.put("patch", this.get);
+            if (this.delete != null) operations.put("delete", this.get);
+            return operations;
+        }
+
+        public void setOperation(String method, Operation operation) {
+            switch (method) {
+                case "get":
+                    this.get = operation;
+                    break;
+                case "post":
+                    this.post = operation;
+                    break;
+                case "put":
+                    this.put = operation;
+                    break;
+                case "patch":
+                    this.patch = operation;
+                    break;
+                case "delete":
+                    this.delete = operation;
+                    break;
+            }
+        }
     }
 
     public static class Operation {
@@ -129,14 +161,6 @@ public class OpenApi {
         public Schema schema;
         public String format;
         public Object example; // string | number | boolean
-    }
-
-    public enum Method {
-        get,
-        post,
-        put,
-        patch,
-        delete
     }
 
     public enum ParamType {

@@ -11,15 +11,15 @@ public class TestPlugin implements PlyexPlugin {
     public Endpoint[] getEndpoints(Method method) {
         switch (method.getName()) {
             case "createGreeting":
-                return new Endpoint[]{ new Endpoint(Endpoint.HttpMethod.post, "/greetings") };
+                return new Endpoint[]{ new Endpoint(Endpoint.Method.post, "/greetings") };
             case "getGreeting":
-                return new Endpoint[]{ new Endpoint(Endpoint.HttpMethod.get, "greetings/{name}") };
+                return new Endpoint[]{ new Endpoint(Endpoint.Method.get, "greetings/{name}") };
             case "getGreetings":
-                return new Endpoint[]{ new Endpoint(Endpoint.HttpMethod.get, "greetings") };
+                return new Endpoint[]{ new Endpoint(Endpoint.Method.get, "greetings") };
             case "updateGreeting":
-                return new Endpoint[]{ new Endpoint(Endpoint.HttpMethod.put, "greetings/{name}") };
+                return new Endpoint[]{ new Endpoint(Endpoint.Method.put, "greetings/{name}") };
             case "deleteGreeting":
-                return new Endpoint[]{ new Endpoint(Endpoint.HttpMethod.delete, "greetings/{name}") };
+                return new Endpoint[]{ new Endpoint(Endpoint.Method.delete, "greetings/{name}") };
         }
         return null;
     }

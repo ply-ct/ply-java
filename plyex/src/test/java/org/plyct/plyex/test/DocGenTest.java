@@ -49,18 +49,21 @@ public class DocGenTest {
     }
 
     @Test
-    void docgenAugment() throws IOException {
+    void docGenAugment() throws IOException {
+
+        String outputFile = "src/test/resources/openapi/greetings.yaml";
+        String in = new String(Files.readAllBytes(getBefore("yaml")));
+        Files.write(new File(outputFile).toPath(), in.getBytes());
 
         DocGenOptions options = new DocGenOptions().debug()
                 .sources(Arrays.asList(new String[]{"src/test/java/org/plyct/plyex/test/greetings/GreetingsEndpoint.java"}))
                 .plugin("org.plyct.plyex.test.TestPlugin")
-                .overwrite()
+                .overwriteExistingMeta()
                 .debug()
-                .openApi("src/test/resources/openapi/greetings.yaml");
+                .openApi(outputFile);
 
         DocGen docgen = new DocGen(options);
         docgen.doAugment();
-
     }
 
 

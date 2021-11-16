@@ -12,7 +12,7 @@ public class MainParamsTest {
     void parseParams() {
         String[] args = new String[]{
                 "--sources", "SourceOne.java, path/to/SourceTwo.java,windows\\path\\to\\SourceThree.java ",
-                "--overwrite",
+                "--overwriteExistingMeta",
                 "openapi/greetings.yaml"
         };
 
@@ -28,6 +28,6 @@ public class MainParamsTest {
         assertEquals("windows\\path\\to\\SourceThree.java", options.getSources().get(2));
         assertEquals("openapi/greetings.yaml", options.getOpenApi());
 
-        assertTrue(options.isOverwrite());
+        assertTrue(options.isOverwriteExistingMeta());
     }
 }

@@ -1,6 +1,7 @@
 package org.plyct.plyex;
 
 import com.beust.jcommander.JCommander;
+import org.plyct.plyex.openapi.ApiDoc;
 import org.plyct.plyex.openapi.JsonDoc;
 import org.plyct.plyex.openapi.OpenApi;
 import org.plyct.plyex.openapi.YamlDoc;
@@ -8,6 +9,7 @@ import org.plyct.plyex.openapi.YamlDoc;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,18 +21,17 @@ public class DocGen {
     }
 
     public OpenApi doAugment() throws IOException {
-        String contents = new String(Files.readAllBytes(new File(options.getOpenApi()).toPath()));
-        OpenApi openApi;
-        if (contents.startsWith("{") || contents.startsWith("[")) {
-            openApi = new JsonDoc().load(contents);
-        } else {
-            openApi = new YamlDoc().load(contents);
-        }
+        Path file = new File(options.getOpenApi()).toPath();
+        String contents = new String(Files.readAllBytes(file));
+        ApiDoc apiDoc = contents.startsWith("{") ? new JsonDoc() : new YamlDoc();
+        OpenApi openApi = apiDoc.load(contents);
 
         Plyex plyex = new Plyex(options);
-        // TODO write output
         try {
-            return plyex.augment(openApi);
+            plyex.augment(openApi);
+            String output = apiDoc.dump(openApi, this.options.getIndent());
+            Files.write(file, output.getBytes());
+            return openApi;
         } catch (DocGenException ex) {
             if (this.options.isDebug()) ex.printStackTrace();
             System.err.println("DocGen error: " + ex);

@@ -39,11 +39,27 @@ public class DocGenOptions {
         return this;
     }
 
-    @Parameter(names = "--overwrite", description = "TODO: Overwrite what?")
-    private boolean overwrite;
-    public boolean isOverwrite() { return this.overwrite; }
-    public DocGenOptions overwrite() {
-        this.overwrite = true;
+    @Parameter(names = "--addMissingOperations", description = "Add path operations missing from OpenAPI")
+    private boolean addMissingOperations;
+    public boolean isAddMissingOperations() { return this.addMissingOperations; }
+    public DocGenOptions addMissingOperations() {
+        this.addMissingOperations = true;
+        return this;
+    }
+
+    @Parameter(names = "--overwriteExistingMeta", description = "Overwrite pre-existing summaries, descriptions, samples, examples")
+    private boolean overwriteExistingMeta;
+    public boolean isOverwriteExistingMeta() { return this.overwriteExistingMeta; }
+    public DocGenOptions overwriteExistingMeta() {
+        this.overwriteExistingMeta = true;
+        return this;
+    }
+
+    @Parameter(names = "--indent", description = "Indent for serialized API doc")
+    private int indent = 2;
+    public int getIndent() { return this.indent; }
+    public DocGenOptions indent(int indent) {
+        this.indent = indent;
         return this;
     }
 
@@ -52,14 +68,6 @@ public class DocGenOptions {
     public boolean isDebug() { return this.debug; }
     public DocGenOptions debug() {
         this.debug = true;
-        return this;
-    }
-
-    @Parameter(names = "--addMissingOperations", description = "Add path operations missing from OpenAPI")
-    private boolean addMissingOperations;
-    public boolean isAddMissingOperations() { return this.addMissingOperations; }
-    public DocGenOptions addMissingOperations() {
-        this.addMissingOperations = true;
         return this;
     }
 

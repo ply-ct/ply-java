@@ -62,7 +62,7 @@ public class PlyexSpring implements PlyexPlugin {
     List<Endpoint> getEndpoints(RequestMethod classMethod, List<RequestMethod> requestMethods, List<String> paths) {
         List<Endpoint> endpoints = new ArrayList<>();
         for (RequestMethod methodMethod : requestMethods) {
-            Endpoint.HttpMethod httpMethod = this.getHttpMethod(methodMethod);
+            Endpoint.Method httpMethod = this.getHttpMethod(methodMethod);
             for (String path : paths) {
                 endpoints.add(new Endpoint(httpMethod, path));
                 if (classMethod != null && !requestMethods.contains(classMethod)) {
@@ -73,7 +73,7 @@ public class PlyexSpring implements PlyexPlugin {
         return endpoints;
     }
 
-    private Endpoint.HttpMethod getHttpMethod(RequestMethod requestMethod) {
-        return Endpoint.HttpMethod.valueOf(requestMethod.toString().toLowerCase());
+    private Endpoint.Method getHttpMethod(RequestMethod requestMethod) {
+        return Endpoint.Method.valueOf(requestMethod.toString().toLowerCase());
     }
 }

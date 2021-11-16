@@ -8,7 +8,7 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.StringWriter;
 
-public class JsonDoc {
+public class JsonDoc implements ApiDoc {
 
     private Gson gson;
 
