@@ -1,5 +1,6 @@
-package org.plyct.plyex;
+package org.plyct.plyex.docgen;
 
+import org.plyct.plyex.PlyMethod;
 import org.plyct.plyex.annotation.Ply;
 
 import javax.annotation.processing.AbstractProcessor;

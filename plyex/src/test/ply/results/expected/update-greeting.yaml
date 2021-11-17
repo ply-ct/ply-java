@@ -1,13 +1,14 @@
 putGreeting:
-  url: ${baseUrl}/greetings/World
-  method: PUT
-  headers:
-    Content-Type: application/json
-  body: |-
-    {
-      "salutation": "Hey There",
-      "name": "Stranger"
-    }
+  request:
+    url: ${baseUrl}/greetings/World
+    method: PUT
+    headers:
+      Content-Type: application/json
+    body: |-
+      {
+        "salutation": "Hey There",
+        "name": "Stranger"
+      }
   response:
     status:
       code: 200
@@ -23,15 +24,16 @@ putGreeting:
         }
       }
 putGreetingNotFound:
-  url: ${baseUrl}/greetings/Nobody
-  method: PUT
-  headers:
-    Content-Type: application/json
-  body: |-
-    {
-      "salutation": "Hail",
-      "name": "Somebody"
-    }
+  request:
+    url: ${baseUrl}/greetings/Nobody
+    method: PUT
+    headers:
+      Content-Type: application/json
+    body: |-
+      {
+        "salutation": "Hail",
+        "name": "Somebody"
+      }
   response:
     status:
       code: 404

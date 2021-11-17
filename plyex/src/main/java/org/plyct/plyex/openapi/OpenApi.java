@@ -25,10 +25,10 @@ public class OpenApi {
         public Map<String, Operation> operations() {
             Map<String,Operation> operations = new HashMap<>();
             if (this.get != null) operations.put("get", this.get);
-            if (this.post != null) operations.put("post", this.get);
-            if (this.put != null) operations.put("put", this.get);
-            if (this.patch != null) operations.put("patch", this.get);
-            if (this.delete != null) operations.put("delete", this.get);
+            if (this.post != null) operations.put("post", this.post);
+            if (this.put != null) operations.put("put", this.put);
+            if (this.patch != null) operations.put("patch", this.patch);
+            if (this.delete != null) operations.put("delete", this.delete);
             return operations;
         }
 

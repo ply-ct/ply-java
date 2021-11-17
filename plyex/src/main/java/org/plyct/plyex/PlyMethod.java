@@ -1,6 +1,7 @@
 package org.plyct.plyex;
 
 import org.plyct.plyex.annotation.Ply;
+import org.plyct.plyex.docgen.DocGenException;
 
 import java.lang.reflect.Method;
 

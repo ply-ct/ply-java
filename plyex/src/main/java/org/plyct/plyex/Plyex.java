@@ -1,141 +1,91 @@
 package org.plyct.plyex;
 
-import org.plyct.plyex.openapi.OpenApi;
-import org.plyct.plyex.plugin.PlyexPlugin;
+import com.beust.jcommander.JCommander;
+import com.google.gson.Gson;
+import org.plyct.plyex.docgen.DocGen;
+import org.plyct.plyex.util.Json;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.List;
 
 public class Plyex {
 
-    private final DocGenOptions options;
+    private final PlyexOptions options;
 
-    public Plyex(DocGenOptions options) {
+    public Plyex(PlyexOptions options) {
         this.options = options;
     }
 
-    public OpenApi augment(OpenApi openApi) throws DocGenException {
-        return this.augment(openApi, this.getPlyMethods());
-    }
-
-    public OpenApi augment(OpenApi openApi, List<PlyMethod> plyMethods) throws DocGenException {
-        if (this.options.isAddMissingOperations()) {
-            if (openApi.paths == null) openApi.paths = new HashMap<>();
-            for (PlyMethod plyMethod : plyMethods) {
-                Endpoint endpoint = plyMethod.getEndpoint();
-                OpenApi.Path openApiPath = openApi.paths.get(endpoint.getPath());
-                if (openApiPath == null) {
-                    openApiPath = new OpenApi.Path();
-                }
-                if (openApiPath.operations().get(endpoint.getMethod().toString()) == null) {
-                    openApiPath.setOperation(endpoint.getMethod().toString(), newOperation(plyMethod));
-                }
+    public PlyConfig loadPlyConfig() throws IOException {
+        File plyConfigFile = new File(options.getPlyConfigPath());
+        if (!plyConfigFile.exists() && options.getPlyConfigPath().equals("plyconfig.json")) {
+            // try plyconfig.yaml if not specified (because plyconfig.json is default)
+            File plyConfigYaml = new File("plyconfig.yaml");
+            if (!plyConfigYaml.exists()) plyConfigYaml = new File("plyconfig.yml");
+            if (plyConfigYaml.exists()) plyConfigFile = plyConfigYaml;
+        }
+        PlyConfig plyConfig = new PlyConfig();
+        if (plyConfigFile.exists()) {
+            String configContents = new String(Files.readAllBytes(plyConfigFile.toPath()));
+            if (Json.isJson(plyConfigFile.toPath(), configContents)) {
+                plyConfig = new Gson().fromJson(configContents, PlyConfig.class);
+            } else {
+                plyConfig = new Yaml(new Constructor(PlyConfig.class)).load(configContents);
+            }
+            if (!plyConfig.verbose) plyConfig.verbose = options.isDebug();
+            if (plyConfig.prettyIndent == 2 && options.getIndent() != 2) {
+                plyConfig.prettyIndent = options.getIndent();
+            }
+            if (plyConfig.testsLocation.endsWith("/")) {
+                plyConfig.testsLocation = plyConfig.testsLocation.substring(0, plyConfig.testsLocation.length() - 1);
+            }
+            if (plyConfig.expectedLocation == null) {
+                plyConfig.expectedLocation = plyConfig.testsLocation + "/results/expected";
+            }
+            if (plyConfig.actualLocation == null) {
+                plyConfig.actualLocation = plyConfig.testsLocation + "/results/actual";
             }
         }
-
-        return this.doAugment(openApi, plyMethods);
+        return plyConfig;
     }
 
-    public OpenApi doAugment(OpenApi openApi, List<PlyMethod> plyMethods) {
+    public static void main(String[] args) throws ArgsException {
+        List<String> argsList = Arrays.asList(args);
+        int debugIdx = argsList.indexOf("--debug");
+        boolean debug = debugIdx >= 0 && (argsList.size() == debugIdx + 1 || !"false".equals(argsList.get(debugIdx)));
 
-        if (openApi.paths != null) {
-            for (String path : openApi.paths.keySet()) {
-                Map<String, OpenApi.Operation> operations = openApi.paths.get(path).operations();
-                for (String method : operations.keySet()) {
-                    OpenApi.Operation operation = operations.get(method);
-                    Optional<PlyMethod> methodOpt = plyMethods.stream().filter(pm -> {
-                        return pm.getEndpoint().getPath().equals(path) && pm.getEndpoint().getMethod().toString().equals(method);
-                    }).findFirst();
-                    if (methodOpt.isPresent()) {
-                        PlyMethod plyMethod = methodOpt.get();
-                        MethodMeta methodMeta = getMethodMeta(plyMethod);
-                        if (methodMeta != null) {
-                            boolean overwrite = this.options.isOverwriteExistingMeta();
-                            if (methodMeta.getSummary() != null && (operation.summary == null || overwrite)) {
-                                operation.summary = methodMeta.getSummary();
-                            }
-                            if (methodMeta.getDescription() != null && (operation.description == null || overwrite)) {
-                                operation.description = methodMeta.getDescription();
-                            }
-                            this.addExamples(plyMethod, operation, methodMeta);
-                        }
-                    }
-                }
-            }
-        }
-        return openApi;
-    }
-
-    protected OpenApi.Operation newOperation(PlyMethod plyMethod) {
-        Endpoint endpoint = plyMethod.getEndpoint();
-        System.out.println("Adding OpenAPI operation: " + endpoint.getPath() + "." + endpoint.getMethod());
-        OpenApi.Operation operation = new OpenApi.Operation();
-        operation.summary = "";
-        return operation;
-    }
-
-    protected MethodMeta getMethodMeta(PlyMethod plyMethod) {
-        MethodMeta methodMeta = new MethodMeta();
-        if (plyMethod.getDocComment() != null) {
-            String comment = plyMethod.getDocComment().trim();
-            if (!comment.isEmpty()) {
-                String[] lines = comment.split("/\\r?\\n/");
-                int dot = lines[0].indexOf('.');
-                methodMeta.setSummary(dot > 0 && dot < lines[0].length() + 1 ? lines[0].substring(dot + 1).trim() : "");
-                String descrip = "";
-                for (int i = 1; i < lines.length; i++) {
-                    descrip += "\n" + lines[i].trim();
-                }
-                if (descrip.length() > 0) methodMeta.setDescription(descrip.trim());
-            }
-        }
-        if (plyMethod.getRequest() != null) {
-            // TODO request samples
-        }
-        if (plyMethod.getResponses() != null && plyMethod.getResponses().length > 0) {
-            // TODO response samples
-        }
-
-        return methodMeta;
-    }
-
-    protected void addExamples(PlyMethod plyMethod, OpenApi.Operation operation, MethodMeta methodMeta) {
-        // TODO add examples
-    }
-
-    protected List<PlyMethod> getPlyMethods() throws DocGenException {
-        List<PlyMethod> plyMethods = new DocGenCompiler(this.options).process();
         try {
-            PlyexPlugin plyexPlugin = this.getPlugin();
-            List<PlyMethod> extraPlyMethods = new ArrayList<>();
-            for (PlyMethod plyMethod : plyMethods) {
-                Endpoint[] endpoints = plyexPlugin.getEndpoints(plyMethod.getMethod());
-                if (endpoints == null || endpoints.length == 0) {
-                    System.out.println("Endpoint not found for ply method: " + plyMethod);
-                } else {
-                    plyMethod.setEndpoint(endpoints[0]);
-                    if (endpoints.length > 1) {
-                        for (int i = 1; i < endpoints.length; i++) {
-                            PlyMethod extraPlyMethod = new PlyMethod(
-                                    plyMethod.getPackageName(),
-                                    plyMethod.getClassName(),
-                                    plyMethod.getName(),
-                                    plyMethod.getSignature()
-                            );
-                            plyMethod.setEndpoint(endpoints[i]);
-                            extraPlyMethods.add(extraPlyMethod);
-                        }
-                    }
-                }
+            PlyexOptions options = new PlyexOptions();
+            DocGen docGen = new DocGen(options.debug(debug));
+            JCommander jc = JCommander.newBuilder()
+                    .addObject(options)
+                    .addCommand("docgen", docGen)
+                    .build();
+            jc.parse(args);
+            if (options.isHelp()) {
+                jc.usage();
+            } else {
+                Plyex plyex = new Plyex(options);
+                options.setPlyConfig(plyex.loadPlyConfig());
+                docGen.run();
             }
-            plyMethods.addAll(extraPlyMethods);
-            return plyMethods;
-        } catch (ReflectiveOperationException ex) {
-            throw new DocGenException("Cannot instantiate plugin: " + this.options.getPlugin(), ex);
+        } catch (Exception ex) {
+            if (debug) {
+                ex.printStackTrace();
+            }
+            throw new ArgsException(ex.getMessage());
         }
     }
 
-    private PlyexPlugin getPlugin() throws ReflectiveOperationException {
-        Class<? extends PlyexPlugin> pluginClass = Class.forName(this.options.getPlugin()).asSubclass(PlyexPlugin.class);
-        return pluginClass.getDeclaredConstructor().newInstance();
+
+    public static class ArgsException extends Exception {
+        public ArgsException(String message) {
+            super(message);
+        }
     }
 }

@@ -1,7 +1,5 @@
 package org.plyct.plyex;
 
-import org.plyct.plyex.openapi.OpenApi;
-
 public class Endpoint {
 
     public enum Method {
@@ -15,24 +13,19 @@ public class Endpoint {
     public Endpoint(Method method, String path) {
         this.method = method;
         this.path = path;
-    }
-
-    public Endpoint(Method method, String path, boolean lastSegmentOptional) {
-        this(method, path);
-        this.lastSegmentOptional = lastSegmentOptional;
+        if (!this.path.startsWith("/")) this.path = "/" + this.path;
+        if (this.path.length() > 1 && this.path.endsWith("/")) this.path = this.path.substring(0, this.path.length());
     }
 
     private Method method;
     public Method getMethod() { return this.method; }
 
     /**
-     * Path parameters are indicated by curly braces (eg: /greetings/{name}
+     * Path parameters are indicated by curly braces (eg: /greetings/{name}.
+     * Normalized in constructor to always start with / and with no trailing /.
      */
     private String path;
     public String getPath() { return this.path; }
-
-    private boolean lastSegmentOptional;
-    public boolean isLastSegmentOptional() { return this.lastSegmentOptional; }
 
     @Override
     public String toString() {
@@ -42,8 +35,7 @@ public class Endpoint {
     @Override
     public boolean equals(Object other) {
         return other instanceof Endpoint
-                && other.toString().equals(this.toString())
-                && ((Endpoint) other).lastSegmentOptional == this.lastSegmentOptional;
+                && other.toString().equals(this.toString());
     }
 
     @Override

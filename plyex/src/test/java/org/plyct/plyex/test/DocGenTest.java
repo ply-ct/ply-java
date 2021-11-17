@@ -1,8 +1,9 @@
 package org.plyct.plyex.test;
 
 import org.junit.jupiter.api.Test;
-import org.plyct.plyex.DocGen;
-import org.plyct.plyex.DocGenOptions;
+import org.plyct.plyex.PlyConfig;
+import org.plyct.plyex.PlyexOptions;
+import org.plyct.plyex.docgen.DocGen;
 import org.plyct.plyex.openapi.JsonDoc;
 import org.plyct.plyex.openapi.OpenApi;
 import org.plyct.plyex.openapi.YamlDoc;
@@ -55,15 +56,18 @@ public class DocGenTest {
         String in = new String(Files.readAllBytes(getBefore("yaml")));
         Files.write(new File(outputFile).toPath(), in.getBytes());
 
-        DocGenOptions options = new DocGenOptions().debug()
+        PlyexOptions options = new PlyexOptions().debug(true);
+        PlyConfig plyConfig = new PlyConfig();
+        plyConfig.testsLocation = "src/test/ply";
+        plyConfig.expectedLocation = "src/test/ply/results/expected";
+        options.setPlyConfig(plyConfig);
+        DocGen docGen = new DocGen(options)
                 .sources(Arrays.asList(new String[]{"src/test/java/org/plyct/plyex/test/greetings/GreetingsEndpoint.java"}))
                 .plugin("org.plyct.plyex.test.TestPlugin")
                 .overwriteExistingMeta()
-                .debug()
                 .openApi(outputFile);
 
-        DocGen docgen = new DocGen(options);
-        docgen.doAugment();
+        docGen.run();
     }
 
 

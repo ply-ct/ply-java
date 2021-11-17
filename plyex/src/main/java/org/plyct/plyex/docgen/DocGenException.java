@@ -1,4 +1,4 @@
-package org.plyct.plyex;
+package org.plyct.plyex.docgen;
 
 public class DocGenException extends RuntimeException {
     public DocGenException(String message) {
