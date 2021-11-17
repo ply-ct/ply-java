@@ -35,9 +35,22 @@ public class ExamplesMeta {
         this.plyConfig = plyConfig;
         if (plyMethod.getRequest() != null && !plyMethod.getRequest().isEmpty()) {
             PlyResult expectedResult = this.getExpectedResult(plyMethod.getRequest());
+            if (expectedResult != null && expectedResult.request != null) {
+                this.request = expectedResult.request.body;
+            }
         }
 
         if (plyMethod.getResponses() != null && plyMethod.getResponses().length > 0) {
+            for (String response : plyMethod.getResponses()) {
+                if (!response.isEmpty()) {
+                    PlyResult expectedResult = this.getExpectedResult(response);
+                    if (expectedResult != null && expectedResult.response != null
+                            && expectedResult.response.status != null && expectedResult.response.status.code > 0) {
+                        if (this.responses == null) this.responses = new HashMap<>();
+                        this.responses.put(expectedResult.response.status.code, expectedResult.response.body);
+                    }
+                }
+            }
         }
     }
 

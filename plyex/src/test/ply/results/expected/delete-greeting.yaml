@@ -4,35 +4,35 @@ deleteGreeting:
     method: DELETE
     headers:
       Accept: application/json
-    response:
-      status:
-        code: 200
-        message: OK
-      headers:
-        content-type: application/json; charset=utf-8
-      body: |-
-        {
-          "status": {
-            "code": 200,
-            "message": "OK"
-          }
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      content-type: application/json; charset=utf-8
+    body: |-
+      {
+        "status": {
+          "code": 200,
+          "message": "OK"
         }
+      }
 deleteGreetingNotFound:
   request:
     url: ${baseUrl}/greetings/Nobody
     method: DELETE
     headers:
       Accept: application/json
-    response:
-      status:
-        code: 404
-        message: Not Found
-      headers:
-        content-type: application/json; charset=utf-8
-      body: |-
-        {
-          "status": {
-            "code": 404,
-            "message": "Not Found"
-          }
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      content-type: application/json; charset=utf-8
+    body: |-
+      {
+        "status": {
+          "code": 404,
+          "message": "Not Found"
         }
+      }
