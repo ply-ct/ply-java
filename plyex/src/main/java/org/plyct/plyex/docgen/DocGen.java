@@ -2,9 +2,16 @@ package org.plyct.plyex.docgen;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import org.plyct.plyex.Endpoint;
 import org.plyct.plyex.PlyMethod;
 import org.plyct.plyex.PlyexOptions;
+import org.plyct.plyex.code.CodeSamples;
+import org.plyct.plyex.code.Item;
+import org.plyct.plyex.code.PathChunk;
+import org.plyct.plyex.code.TemplateContext;
 import org.plyct.plyex.openapi.ApiDoc;
 import org.plyct.plyex.openapi.JsonDoc;
 import org.plyct.plyex.openapi.OpenApi;
@@ -158,16 +165,119 @@ public class DocGen {
     protected void addExamples(PlyMethod plyMethod, OpenApi.Operation operation) {
         try {
             ExamplesMeta examplesMeta = new ExamplesMeta(this.options.getPlyConfig(), plyMethod);
-            System.out.println(examplesMeta);
-
+            if (examplesMeta.getRequest() != null) {
+                if (operation.requestBody == null) {
+                    operation.requestBody = new OpenApi.RequestBody();
+                    operation.requestBody.required = true;
+                }
+                if (operation.requestBody.content == null) {
+                    operation.requestBody.content = new OpenApi.BodyContent();
+                }
+                if (operation.requestBody.content.applicationJson == null) {
+                    operation.requestBody.content.applicationJson = new OpenApi.JsonMedia();
+                }
+                operation.requestBody.content.applicationJson.example = this.example(plyMethod.getEndpoint(),
+                        examplesMeta.getRequest(), false);
+            }
+            if (examplesMeta.getResponses() != null && !examplesMeta.getResponses().isEmpty()) {
+                if (operation.responses == null) {
+                    operation.responses = new HashMap<>();
+                }
+                for (Integer code : examplesMeta.getResponses().keySet()) {
+                    OpenApi.Response openApiResponse = operation.responses.get(code.toString());
+                    if (openApiResponse == null) {
+                        openApiResponse = new OpenApi.Response();
+                        operation.responses.put(code.toString(), openApiResponse);
+                    }
+                    if (openApiResponse.content == null) {
+                        openApiResponse.content = new OpenApi.BodyContent();
+                    }
+                    if (openApiResponse.content.applicationJson == null) {
+                        openApiResponse.content.applicationJson = new OpenApi.JsonMedia();
+                    }
+                    String response = examplesMeta.getResponses().get(code);
+                    openApiResponse.content.applicationJson.example = this.example(plyMethod.getEndpoint(),
+                            response, true);
+                    if (openApiResponse.content.applicationJson.example != null) {
+                        if (code == 200 || code == 201) {
+                            this.addCodeSamples(plyMethod, operation,
+                                    new JsonSchemaType(openApiResponse.content.applicationJson),
+                                    openApiResponse.content.applicationJson.example);
+                        }
+                    }
+                }
+            }
         } catch (IOException ex) {
             if (this.options.isDebug()) ex.printStackTrace();
             System.err.println("Unable to add examples for " + plyMethod.getEndpoint() + ": " + ex);
         }
     }
 
+    protected Object example(Endpoint endpoint, String example, boolean isResponse) {
+        try {
+            if (example.startsWith("{") || example.startsWith("[")) {
+                GsonBuilder builder = new GsonBuilder();
+                builder.setObjectToNumberStrategy(in -> {
+                   double d = in.nextDouble();
+                   if (d % 1 == 0) return Double.valueOf(d).longValue();
+                   else return d;
+                });
+                Gson gson = builder.create();
+                return gson.fromJson(this.cleanupJson(example), Object.class);
+            }
+        } catch (Exception ex) {
+            if (this.options.isDebug()) ex.printStackTrace();
+            System.err.println("Error parsing JSON example " + (isResponse ? "response: " : "request: ") + endpoint);
+        }
+        return example;
+    }
+
+    protected void addCodeSamples(PlyMethod plyMethod, OpenApi.Operation operation, JsonSchemaType schemaType,
+                                  Object example) throws IOException {
+        if (operation.codeSamples != null) return; // samples already added
+        List<PathChunk> chunks = new ArrayList<>();
+        chunks.add(new PathChunk(""));
+        String[] pathSegments = plyMethod.getEndpoint().getPath().split("/");
+        for (String segment : pathSegments) {
+            PathChunk chunk = chunks.get(chunks.size() - 1);
+            if (segment.startsWith("{") && segment.endsWith("}")) {
+                if (chunk.isParam()) chunks.add(new PathChunk("/"));
+                else chunk.setPath(chunk.getPath() + "/");
+                chunks.add(new PathChunk(segment.substring(1, segment.length() - 1), true));
+            } else if (chunk.isParam()) {
+                chunks.add(new PathChunk("/" + segment));
+            } else {
+                chunk.setPath("/" + segment);
+            }
+        }
+
+        TemplateContext templateContext = new TemplateContext(chunks.toArray(new PathChunk[0]), schemaType.getType(),
+                schemaType.getTypeName());
+        templateContext.setArray(schemaType.isArray());
+        String last = pathSegments[pathSegments.length - 1];
+        if (last.startsWith("{") && last.endsWith("}") && example instanceof JsonObject) {
+            String name = last.substring(1, last.length() - 1);
+            Object value = ((JsonObject)example).get(name);
+            if (value != null) {
+                templateContext.setItem(new Item(name, value));
+            }
+        }
+        CodeSamples codeSamples = new CodeSamples(plyMethod.getEndpoint().getMethod());
+        Map<String,String> samples = codeSamples.getSamples(templateContext);
+        for (String lang : samples.keySet()) {
+            if (operation.codeSamples == null) operation.codeSamples = new OpenApi.CodeSample[0];
+            OpenApi.CodeSample openApiCodeSample = new OpenApi.CodeSample();
+            openApiCodeSample.lang = lang;
+            openApiCodeSample.source = samples.get(lang);
+            List<OpenApi.CodeSample> codeSampleList = new ArrayList<>(Arrays.asList(operation.codeSamples));
+            codeSampleList.add(openApiCodeSample);
+            operation.codeSamples = codeSampleList.toArray(new OpenApi.CodeSample[0]);
+        }
+    }
+
     protected List<PlyMethod> getPlyMethods() throws DocGenException {
-        List<PlyMethod> plyMethods = new DocGenCompiler(Paths.get(getRoot()), getSources(), this.options.isDebug()).process();
+        List<PlyMethod> plyMethods = new DocGenCompiler(Paths.get(getRoot()), getSources(),
+                this.options.isDebug()).process();
         try {
             PlyexPlugin plyexPlugin = getPluginInstance();
             List<PlyMethod> extraPlyMethods = new ArrayList<>();
@@ -196,6 +306,14 @@ public class DocGen {
         } catch (ReflectiveOperationException ex) {
             throw new DocGenException("Cannot instantiate plugin: " + getPlugin(), ex);
         }
+    }
+
+    private String cleanupJson(String json) {
+        List<String> lines = new ArrayList<>();
+        for (String line : json.split("\r?\n")) {
+            lines.add(line.replaceAll("(?<!\")\\$\\{.+?}", "123"));
+        }
+        return String.join(System.lineSeparator(), lines);
     }
 
     private PlyexPlugin getPluginInstance() throws ReflectiveOperationException {

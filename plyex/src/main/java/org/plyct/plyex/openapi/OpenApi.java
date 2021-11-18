@@ -60,7 +60,10 @@ public class OpenApi {
         public Parameter[] parameters;
         public RequestBody requestBody;
         public Map<String, Response> responses;
+        @SerializedName("x-codeSamples")
         public CodeSample[] codeSamples; // x-codeSamples
+        public CodeSample[] getCodeSamples() { return this.codeSamples; }
+        public void setCodeSamples(CodeSample[] codeSamples) { this.codeSamples = codeSamples; }
     }
 
     public static class Response {

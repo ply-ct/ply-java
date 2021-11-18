@@ -9,7 +9,10 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class YamlDoc implements ApiDoc {
@@ -41,7 +44,8 @@ public class YamlDoc implements ApiDoc {
         TypeDescription typeDescription = new TypeDescription(clazz);
         typeDescription.substituteProperty("application/json", clazz, "getApplicationJson", "setApplicationJson");
         typeDescription.substituteProperty("$ref", clazz, "getRef", "setRef");
-        typeDescription.setExcludes("applicationJson", "ref");
+        typeDescription.substituteProperty("x-codeSamples", clazz, "getCodeSamples", "setCodeSamples");
+        typeDescription.setExcludes("applicationJson", "ref", "codeSamples");
         constructor.addTypeDescription(typeDescription);
         representer.addTypeDescription(typeDescription);
     }
@@ -84,8 +88,7 @@ public class YamlDoc implements ApiDoc {
             // ignore nulls
             if (propertyValue == null) {
                 return null;
-            }
-            else {
+            } else {
                 return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
             }
         }
@@ -103,6 +106,8 @@ public class YamlDoc implements ApiDoc {
                 return super.getProperty("applicationJson");
             } else if (name.equals("$ref")) {
                 return super.getProperty("ref");
+            } else if (name.equals("x-codeSamples")) {
+                return super.getProperty("codeSamples");
             }
             return super.getProperty(name);
         }
