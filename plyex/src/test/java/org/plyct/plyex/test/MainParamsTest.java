@@ -5,25 +5,30 @@ import org.junit.jupiter.api.Test;
 import org.plyct.plyex.PlyexOptions;
 import org.plyct.plyex.docgen.DocGen;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MainParamsTest {
 
     @Test
     void parseParams() {
         String[] args = new String[] {
+                "--debug",
                 "docgen",
                 "--sources", "SourceOne.java, path/to/SourceTwo.java,windows\\path\\to\\SourceThree.java ",
                 "--overwriteExistingMeta",
                 "openapi/greetings.yaml"
         };
 
-        DocGen docGen = new DocGen(new PlyexOptions().debug(true));
+        PlyexOptions options = new PlyexOptions();
+        DocGen docGen = new DocGen(options);
         JCommander.newBuilder()
-                .addCommand(docGen)
+                .addObject(options)
+                .addCommand("docgen", docGen)
                 .build()
                 .parse(args);
 
+        assertTrue(options.isDebug());
         assertEquals(3, docGen.getSources().size(), 3);
         assertEquals("SourceOne.java", docGen.getSources().get(0));
         assertEquals("path/to/SourceTwo.java", docGen.getSources().get(1));
@@ -41,7 +46,7 @@ public class MainParamsTest {
         DocGen docGen = new DocGen(options);
         JCommander jc = JCommander.newBuilder()
                 .addObject(options)
-                .addCommand(docGen)
+                .addCommand("docgen", docGen)
                 .build();
         jc.parse(args);
 

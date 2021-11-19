@@ -1,0 +1,401 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Snapi Test APIs",
+    "version": "1.0.1",
+    "termsOfService": "https://api.lumen.com/terms/",
+    "contact": {
+      "email": "public-sector-apis@lumen.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.lumen.com"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Snapi Test APIs",
+      "description": "Lumen Public Sector APIs",
+      "externalDocs": {
+        "url": "https://api.lumen.com/api-docs"
+      }
+    }
+  ],
+  "paths": {
+    "/greetings": {
+      "get": {
+        "summary": "List greetings",
+        "tags": [
+          "Snapi-test"
+        ],
+        "description": "One of them may be untoward.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Greeting"
+                  }
+                },
+                "example": [
+                  {
+                    "name": "World",
+                    "salutation": "Hello"
+                  },
+                  {
+                    "name": "Cruel World",
+                    "salutation": "Goodbye"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "Java",
+            "source": "HttpClient client \u003d HttpClient.newHttpClient();\nHttpRequest request \u003d HttpRequest.newBuilder()\n        .uri(URI.create(baseUrl + \"/greetings\"))\n        .setHeader(\"Accept\", \"application/json\")\n        .setHeader(\"Authorization\", \"Bearer \" + authToken)\n        .build();\n\nHttpResponse\u003cString\u003e response \u003d client.send(request, HttpResponse.BodyHandlers.ofString());\nif (response.statusCode() \u003d\u003d HttpURLConnection.HTTP_OK) {\n    Greeting[] greetings \u003d new Gson().fromJson(response.body(), Greeting[].class);\n    System.out.println(\"greetings: \" + response.body());\n}\n"
+          },
+          {
+            "lang": "Python",
+            "source": "response \u003d requests.get(\n    f\"{baseUrl}/greetings\",\n    headers\u003d{\n        \"Accept\": \"application/json\",\n        \"Authorization\": f\"Bearer {authToken}\"\n    }\n)\nif (response.ok):\n    greetings \u003d response.json()\n    print(f\"greetings: {str(greetings)}\")\n"
+          },
+          {
+            "lang": "TypeScript",
+            "source": "const response \u003d await fetch(`${baseUrl}/greetings`, {\n    method: \u0027get\u0027,\n    headers: {\n        Accept: \u0027application/json\u0027,\n        Authorization: `Bearer ${authToken}`\n    }\n});\nif (response.ok) {\n    const greetings \u003d await response.json() as Greeting[];\n    console.log(`greetings: ${JSON.stringify(greetings)}`);\n}\n"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create a greeting",
+        "tags": [
+          "Snapi-test"
+        ],
+        "requestBody": {
+          "description": "greeting",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Greeting"
+              },
+              "example": {
+                "salutation": "Howdy",
+                "name": "Cowboy"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Greeting"
+                },
+                "example": {
+                  "status": {
+                    "code": 201,
+                    "message": "Created"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                },
+                "example": {
+                  "status": {
+                    "code": 400,
+                    "errors": [
+                      "Greeting should have required property \u0027name\u0027",
+                      "Greeting should NOT have additional property \u0027notname\u0027",
+                      "Greeting/salutation should NOT contain spaces"
+                    ],
+                    "message": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                },
+                "example": {
+                  "status": {
+                    "code": 409,
+                    "message": "Conflict"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "Java",
+            "source": "Greeting greeting \u003d new Greeting();\n// TODO populate greeting object\n\nHttpClient client \u003d HttpClient.newHttpClient();\nHttpRequest request \u003d HttpRequest.newBuilder()\n        .uri(URI.create(baseUrl + \"/greetings\"))\n        .setHeader(\"Content-Type\", \"application/json\")\n        .setHeader(\"Authorization\", \"Bearer \" + authToken)\n        .POST(HttpRequest.BodyPublishers.ofString(new Gson().toJson(greeting)))\n        .build();\n\nHttpResponse\u003cString\u003e response \u003d client.send(request, HttpResponse.BodyHandlers.ofString());\nif (response.statusCode() \u003d\u003d HttpURLConnection.HTTP_CREATED) {\n    String location \u003d response.headers().firstValue(\"Location\").get();\n    System.out.println(\"Created greeting at: \" + baseUrl + location);\n}\n"
+          },
+          {
+            "lang": "Python",
+            "source": "greeting \u003d Greeting()\n# TODO populate greeting object\n\nresponse \u003d requests.post(\n    f\"{baseUrl}/greetings\",\n    headers\u003d{\n        \"Content-Type\": \"application/json\",\n        \"Authorization\": f\"Bearer {authToken}\"\n    },\n    json\u003dgreeting.__dict__\n)\nif (response.status_code \u003d\u003d HTTPStatus.CREATED):\n    location \u003d response.headers.get(\"Location\")\n    print(f\"Created greeting at: {baseUrl}{location}\")\n"
+          },
+          {
+            "lang": "TypeScript",
+            "source": "const greeting \u003d new Greeting();\n// TODO populate greeting object\n\nconst response \u003d await fetch(`${baseUrl}/greetings`, {\n    method: \u0027post\u0027,\n    headers: {\n        \u0027Content-Type\u0027: \u0027application/json\u0027,\n        Authorization: `Bearer ${authToken}`\n    },\n    body: JSON.stringify(greeting)\n});\nif (response.status \u003d\u003d\u003d StatusCodes.CREATED) {\n    const location \u003d response.headers.get(\u0027Location\u0027);\n    console.log(`Created greeting at: ${baseUrl}${location}`);\n}\n"
+          }
+        ]
+      }
+    },
+    "/greetings/{name}": {
+      "get": {
+        "summary": "Retrieve a greeting",
+        "tags": [
+          "Snapi-test"
+        ],
+        "description": "This greeting is very polite",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Greeting"
+                },
+                "example": {
+                  "name": "World",
+                  "salutation": "Hello"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                },
+                "example": {
+                  "status": {
+                    "code": 404,
+                    "message": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "Java",
+            "source": "HttpClient client \u003d HttpClient.newHttpClient();\nString name \u003d \"World\";\n\nHttpRequest request \u003d HttpRequest.newBuilder()\n        .uri(URI.create(baseUrl + \"/greetings/\" + name))\n        .setHeader(\"Accept\", \"application/json\")\n        .setHeader(\"Authorization\", \"Bearer \" + authToken)\n        .build();\n\nHttpResponse\u003cString\u003e response \u003d client.send(request, HttpResponse.BodyHandlers.ofString());\nif (response.statusCode() \u003d\u003d HttpURLConnection.HTTP_OK) {\n    Greeting greeting \u003d new Gson().fromJson(response.body(), Greeting.class);\n    assert greeting.getName().equals(name);\n    System.out.println(\"greeting: \" + response.body());\n}\n"
+          },
+          {
+            "lang": "Python",
+            "source": "name \u003d \"World\"\n\nresponse \u003d requests.get(\n    f\"{baseUrl}/greetings/{name}\",\n    headers\u003d{\n        \"Accept\": \"application/json\",\n        \"Authorization\": f\"Bearer {authToken}\"\n    }\n)\nif (response.ok):\n    greeting \u003d response.json()\n    assert greeting[\"name\"] \u003d\u003d name\n    print(f\"greeting: {str(greeting)}\")\n"
+          },
+          {
+            "lang": "TypeScript",
+            "source": "const name \u003d \u0027World\u0027;\n\nconst response \u003d await fetch(`${baseUrl}/greetings/${name}`, {\n    method: \u0027get\u0027,\n    headers: {\n        Accept: \u0027application/json\u0027,\n        Authorization: `Bearer ${authToken}`\n    }\n});\nif (response.ok) {\n    const greeting \u003d await response.json() as Greeting;\n    assert.equal(greeting.name, name);\n    console.log(`greeting: ${JSON.stringify(greeting)}`);\n}\n"
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update a greeting",
+        "tags": [
+          "Snapi-test"
+        ],
+        "description": "Replaces entire greeting contents",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "greeting",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Greeting"
+              },
+              "example": {
+                "salutation": "Hey There",
+                "name": "Stranger"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Greeting"
+                },
+                "example": {
+                  "status": {
+                    "code": 200,
+                    "message": "OK"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                },
+                "example": {
+                  "status": {
+                    "code": 400,
+                    "message": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                },
+                "example": {
+                  "status": {
+                    "code": 404,
+                    "message": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "Java",
+            "source": "Greeting greeting \u003d new Greeting();\nString name \u003d \"Stranger\";\ngreeting.setName(name);\n// TODO populate greeting object\n\nURI uri \u003d URI.create(baseUrl + \"/greetings/\" + name);\nHttpClient client \u003d HttpClient.newHttpClient();\nHttpRequest request \u003d HttpRequest.newBuilder()\n        .uri(uri)\n        .setHeader(\"Content-Type\", \"application/json\")\n        .setHeader(\"Authorization\", \"Bearer \" + authToken)\n        .PUT(HttpRequest.BodyPublishers.ofString(new Gson().toJson(greeting)))\n        .build();\n\nHttpResponse\u003cString\u003e response \u003d client.send(request, HttpResponse.BodyHandlers.ofString());\nif (response.statusCode() \u003d\u003d HttpURLConnection.HTTP_OK) {\n    System.out.println(\"Successfully updated greeting at: \" + uri);\n}\n"
+          },
+          {
+            "lang": "Python",
+            "source": "greeting \u003d Greeting()\nname \u003d \"Stranger\"\ngreeting.name \u003d name\n# TODO populate greeting object\n\nurl \u003d f\"{baseUrl}/greetings/{name}\"\nresponse \u003d requests.put(\n    url,\n    headers\u003d{\n        \"Content-Type\": \"application/json\",\n        \"Authorization\": f\"Bearer {authToken}\"\n    },\n    json\u003dgreeting.__dict__\n)\nif (response.ok):\n    print(f\"Successfully updated greeting at: {url}\")\n"
+          },
+          {
+            "lang": "TypeScript",
+            "source": "const greeting \u003d new Greeting();\nconst name \u003d \u0027Stranger\u0027;\ngreeting.name \u003d name;\n// TODO populate greeting object\n\nconst url \u003d `${baseUrl}/greetings/${name}`;\nconst response \u003d await fetch(url, {\n    method: \u0027put\u0027,\n    headers: {\n        \u0027Content-Type\u0027: \u0027application/json\u0027,\n        Authorization: `Bearer ${authToken}`\n    },\n    body: JSON.stringify(greeting)\n});\nif (response.ok) {\n    console.log(`Successfully updated greeting at: ${url}`);\n}\n"
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete a greeting (so long)",
+        "tags": [
+          "Snapi-test"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                },
+                "example": {
+                  "status": {
+                    "code": 200,
+                    "message": "OK"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                },
+                "example": {
+                  "status": {
+                    "code": 404,
+                    "message": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Greeting": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "salutation": {
+            "maxLength": 10,
+            "type": "string"
+          }
+        },
+        "required": [
+          "salutation",
+          "name"
+        ],
+        "type": "object"
+      }
+    }
+  }
+}

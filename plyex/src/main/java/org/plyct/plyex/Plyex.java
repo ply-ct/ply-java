@@ -44,13 +44,14 @@ public class Plyex {
             if (plyConfig.testsLocation.endsWith("/")) {
                 plyConfig.testsLocation = plyConfig.testsLocation.substring(0, plyConfig.testsLocation.length() - 1);
             }
-            if (plyConfig.expectedLocation == null) {
-                plyConfig.expectedLocation = plyConfig.testsLocation + "/results/expected";
-            }
-            if (plyConfig.actualLocation == null) {
-                plyConfig.actualLocation = plyConfig.testsLocation + "/results/actual";
-            }
         }
+        if (plyConfig.expectedLocation == null) {
+            plyConfig.expectedLocation = plyConfig.testsLocation + "/results/expected";
+        }
+        if (plyConfig.actualLocation == null) {
+            plyConfig.actualLocation = plyConfig.testsLocation + "/results/actual";
+        }
+        plyConfig.file = plyConfigFile;
         return plyConfig;
     }
 
@@ -61,11 +62,9 @@ public class Plyex {
 
         try {
             PlyexOptions options = new PlyexOptions();
-            DocGen docGen = new DocGen(options.debug(debug));
-            JCommander jc = JCommander.newBuilder()
-                    .addObject(options)
-                    .addCommand("docgen", docGen)
-                    .build();
+            DocGen docGen = new DocGen(options);
+            JCommander jc = new JCommander(options);
+            jc.addCommand("docgen", docGen);
             jc.parse(args);
             if (options.isHelp()) {
                 jc.usage();

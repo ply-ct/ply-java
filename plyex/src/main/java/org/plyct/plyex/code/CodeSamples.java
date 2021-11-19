@@ -8,7 +8,6 @@ import com.github.jknack.handlebars.io.TemplateLoader;
 import org.plyct.plyex.Endpoint;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -26,6 +25,7 @@ public class CodeSamples {
     public void readTemplates(Endpoint.Method method) throws IOException {
         TemplateLoader loader = new ClassPathTemplateLoader("/templates/" + method, ".handlebars");
         Handlebars handlebars = new Handlebars(loader);
+        handlebars.prettyPrint(true);
         handlebars.registerHelper("capitalize", (String lower, Options options) -> {
             if (lower != null && !lower.isEmpty()) {
                 return String.valueOf(lower.charAt(0)).toUpperCase() + lower.substring(1);

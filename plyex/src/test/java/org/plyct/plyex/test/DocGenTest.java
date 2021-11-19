@@ -23,6 +23,10 @@ public class DocGenTest {
         return new File("src/test/resources/openapi/before/greetings." + ext).toPath();
     }
 
+    private Path getAfter(String ext) {
+        return new File("src/test/resources/openapi/after/greetings." + ext).toPath();
+    }
+
     private Path getTemp(String ext) {
         File tempDir = new File("src/test/resources/openapi/temp");
         if (!tempDir.exists()) tempDir.mkdir();
@@ -50,13 +54,12 @@ public class DocGenTest {
     }
 
     @Test
-    void docGenAugment() throws IOException {
-
+    void docGenYaml() throws IOException {
         String outputFile = "src/test/resources/openapi/greetings.yaml";
         String in = new String(Files.readAllBytes(getBefore("yaml")));
         Files.write(new File(outputFile).toPath(), in.getBytes());
 
-        PlyexOptions options = new PlyexOptions().debug(true);
+        PlyexOptions options = new PlyexOptions(true);
         PlyConfig plyConfig = new PlyConfig();
         plyConfig.testsLocation = "src/test/ply";
         plyConfig.expectedLocation = "src/test/ply/results/expected";
@@ -68,8 +71,34 @@ public class DocGenTest {
                 .openApi(outputFile);
 
         docGen.run();
+
+        String expected = new String(Files.readAllBytes(getAfter("yaml")));
+        String output = new String(Files.readAllBytes(new File(outputFile).toPath()));
+        assertEquals(expected, output);
     }
 
+    @Test
+    void docGenJson() throws IOException {
+        String outputFile = "src/test/resources/openapi/greetings.json";
+        String in = new String(Files.readAllBytes(getBefore("json")));
+        Files.write(new File(outputFile).toPath(), in.getBytes());
 
+        PlyexOptions options = new PlyexOptions(true);
+        PlyConfig plyConfig = new PlyConfig();
+        plyConfig.testsLocation = "src/test/ply";
+        plyConfig.expectedLocation = "src/test/ply/results/expected";
+        options.setPlyConfig(plyConfig);
+        DocGen docGen = new DocGen(options)
+                .sources(Arrays.asList(new String[]{"src/test/java/org/plyct/plyex/test/greetings/GreetingsEndpoint.java"}))
+                .plugin("org.plyct.plyex.test.TestPlugin")
+                .overwriteExistingMeta()
+                .openApi(outputFile);
+
+        docGen.run();
+
+        String expected = new String(Files.readAllBytes(getAfter("json")));
+        String output = new String(Files.readAllBytes(new File(outputFile).toPath()));
+        assertEquals(expected, output);
+    }
 
 }

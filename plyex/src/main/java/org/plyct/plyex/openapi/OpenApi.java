@@ -1,7 +1,6 @@
 package org.plyct.plyex.openapi;
 
 import com.google.gson.annotations.SerializedName;
-import org.plyct.plyex.Endpoint;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +55,7 @@ public class OpenApi {
     public static class Operation {
         public String summary;
         public String[] tags;
+        public String operationId;
         public String description;
         public Parameter[] parameters;
         public RequestBody requestBody;
@@ -90,6 +90,8 @@ public class OpenApi {
         public void setRef(String ref) { this.ref = ref; }
         public String type;
         public Items items;
+        public Items[] oneOf;
+        public Schema additionalProperties;
     }
 
     public static class Items {
@@ -109,6 +111,7 @@ public class OpenApi {
 
     public static class Server {
         public String url;
+        public String description;
     }
 
     public static class Tag {

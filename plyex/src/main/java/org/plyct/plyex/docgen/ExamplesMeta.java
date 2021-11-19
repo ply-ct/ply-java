@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,20 +61,35 @@ public class ExamplesMeta {
             throw new Error("Ply example path must include '#<requestName>': " +  requestPath);
         }
         Path testsPath = new File(this.plyConfig.testsLocation).toPath();
+        Path plyConfigDir = new File(".").toPath();
+        if (plyConfig.file != null && plyConfig.file.getParentFile() != null) {
+            plyConfigDir = plyConfig.file.getParentFile().toPath();
+        }
+        boolean plyConfigInCwd = Files.isSameFile(plyConfigDir, new File(".").toPath());
+        if (!testsPath.isAbsolute() && !plyConfigInCwd) {
+            // test path is relative to plyconfig directory
+            testsPath = new File(plyConfigDir + File.separator + testsPath).toPath().normalize();
+        }
         File suiteFile = new File(requestPath.substring(0, hash));
         Map<String,PlyResult> expectedResults = ExamplesMeta.expectedResults.get(suiteFile);
         if (expectedResults == null) {
             String suiteBaseName = suiteFile.getName().substring(0, suiteFile.getName().lastIndexOf("."));
             Path relPath = testsPath.relativize(suiteFile.toPath()).getParent();
-            String expectedBase = this.plyConfig.expectedLocation + "/" + (relPath == null ? "" : relPath)
-                    + "/" + suiteBaseName;
+            String expectedBase = this.plyConfig.expectedLocation + File.separator + (relPath == null ? "" : relPath)
+                    + File.separator + suiteBaseName;
             if (expectedBase.endsWith(".ply")) expectedBase = expectedBase.substring(0, expectedBase.length() - 4);
-            File expected = new File(expectedBase + ".yml");
-            if (!expected.exists()) expected = new File(expectedBase + ".yaml");
-            if (!expected.exists()) {
-                throw new IOException("Expected result file not found: " + expected + "/.yml");
+            Path expected = new File(expectedBase + ".yml").toPath();
+            if (!expected.isAbsolute() && !plyConfigInCwd) {
+                expected = new File(plyConfigDir + File.separator + expected).toPath().normalize();
             }
-            expectedResults = parseResults(expected);
+            if (!expected.toFile().exists()) {
+                String exp = expected.toString();
+                expected = new File(exp.substring(0, exp.lastIndexOf(".")) + ".yaml").toPath();
+            }
+            if (!expected.toFile().exists()) {
+                throw new IOException("Expected result file not found: " + expected.normalize() + " (or .yml)");
+            }
+            expectedResults = parseResults(expected.toFile());
             ExamplesMeta.expectedResults.put(suiteFile, expectedResults);
         }
         String requestName = requestPath.substring(hash + 1);

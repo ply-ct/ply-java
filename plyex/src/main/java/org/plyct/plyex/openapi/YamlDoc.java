@@ -36,6 +36,7 @@ public class YamlDoc implements ApiDoc {
         this.addCustomTypeDescription(OpenApi.BodyContent.class);
         this.addCustomTypeDescription(OpenApi.Schema.class);
         this.addCustomTypeDescription(OpenApi.Items.class);
+        this.addCustomTypeDescription(OpenApi.Operation.class);
 
         this.yaml = new Yaml(this.constructor, this.representer, this.dumperOptions);
     }
@@ -81,6 +82,27 @@ public class YamlDoc implements ApiDoc {
                             .collect(Collectors.toCollection(LinkedHashSet::new));
                 }
             });
+        }
+
+        @Override
+        protected Set<Property> getProperties(Class<? extends Object> type) {
+            Set<Property> propSet = super.getProperties(type);
+            // code samples go at the end
+            if (type == OpenApi.Operation.class) {
+                Set<Property> opPropSet = new LinkedHashSet<>();
+                Property codeSamplesProp = null;
+                for (Property prop : propSet) {
+                    if (prop.getName().equals("x-codeSamples")) {
+                        codeSamplesProp = prop;
+                    } else {
+                        opPropSet.add(prop);
+                    }
+                }
+                if (codeSamplesProp != null) opPropSet.add(codeSamplesProp);
+                return opPropSet;
+            } else {
+                return propSet;
+            }
         }
 
         @Override

@@ -4,7 +4,6 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import org.plyct.plyex.Endpoint;
 import org.plyct.plyex.PlyMethod;
 import org.plyct.plyex.PlyexOptions;
@@ -27,7 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-@Parameters(commandNames="docgen", commandDescription="Augment OpenAPI doc summaries, descriptions, samples/snippets")
+@Parameters(commandDescription="Augment OpenAPI doc summaries, descriptions, samples/snippets")
 public class DocGen {
 
     private final PlyexOptions options;
@@ -165,6 +164,7 @@ public class DocGen {
     protected void addExamples(PlyMethod plyMethod, OpenApi.Operation operation) {
         try {
             ExamplesMeta examplesMeta = new ExamplesMeta(this.options.getPlyConfig(), plyMethod);
+            Object requestExample = null;
             if (examplesMeta.getRequest() != null) {
                 if (operation.requestBody == null) {
                     operation.requestBody = new OpenApi.RequestBody();
@@ -176,8 +176,8 @@ public class DocGen {
                 if (operation.requestBody.content.applicationJson == null) {
                     operation.requestBody.content.applicationJson = new OpenApi.JsonMedia();
                 }
-                operation.requestBody.content.applicationJson.example = this.example(plyMethod.getEndpoint(),
-                        examplesMeta.getRequest(), false);
+                requestExample = this.example(plyMethod.getEndpoint(), examplesMeta.getRequest(), false);
+                operation.requestBody.content.applicationJson.example = requestExample;
             }
             if (examplesMeta.getResponses() != null && !examplesMeta.getResponses().isEmpty()) {
                 if (operation.responses == null) {
@@ -202,6 +202,7 @@ public class DocGen {
                         if (code == 200 || code == 201) {
                             this.addCodeSamples(plyMethod, operation,
                                     new JsonSchemaType(openApiResponse.content.applicationJson),
+                                    requestExample,
                                     openApiResponse.content.applicationJson.example);
                         }
                     }
@@ -233,7 +234,7 @@ public class DocGen {
     }
 
     protected void addCodeSamples(PlyMethod plyMethod, OpenApi.Operation operation, JsonSchemaType schemaType,
-                                  Object example) throws IOException {
+                                  Object requestExample, Object responseExample) throws IOException {
         if (operation.codeSamples != null) return; // samples already added
         List<PathChunk> chunks = new ArrayList<>();
         chunks.add(new PathChunk(""));
@@ -255,9 +256,14 @@ public class DocGen {
                 schemaType.getTypeName());
         templateContext.setArray(schemaType.isArray());
         String last = pathSegments[pathSegments.length - 1];
-        if (last.startsWith("{") && last.endsWith("}") && example instanceof JsonObject) {
+        Object example = requestExample;
+        if (plyMethod.getEndpoint().getMethod() == Endpoint.Method.get
+                || plyMethod.getEndpoint().getMethod() == Endpoint.Method.delete) {
+            example = responseExample;
+        }
+        if (last.startsWith("{") && last.endsWith("}") && example instanceof Map) {
             String name = last.substring(1, last.length() - 1);
-            Object value = ((JsonObject)example).get(name);
+            Object value = ((Map)example).get(name);
             if (value != null) {
                 templateContext.setItem(new Item(name, value));
             }
