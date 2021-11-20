@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'signing'
 }
 
 group 'org.ply-ct'
@@ -18,11 +19,47 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+            pom {
+                name = 'Plyex'
+                description = 'OpenAPI augmentation based on Ply autotests'
+                packaging = 'jar'
+                url = 'https://ply-ct.org'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'oakesville'
+                        name = 'Donald Oakes'
+                        email = 'donald@oakesville.io'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/ply-ct/ply-java.git'
+                    developerConnection = 'scm:git:https://github.com/ply-ct/ply-java.git'
+                    url = 'https://github.com/ply-ct/ply-java'
+                }
+            }
         }
     }
     repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = project.hasProperty('ossrhUsername') ? ossrhUsername : System.getenv("MAVEN_USERNAME")
+                password = project.hasProperty('ossrhPassword') ? ossrhPassword : System.getenv("MAVEN_PASSWORD")
+            }
+        }
         mavenLocal()
     }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
 
 repositories {

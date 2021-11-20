@@ -23,6 +23,7 @@ public class ExamplesMeta {
     }
 
     private static final Map<File, Map<String,PlyResult>> expectedResults = new HashMap<>();
+    private static final Map<File, Map<String,PlyResult>> actualResults = new HashMap<>();
 
     private final PlyConfig plyConfig;
 
@@ -32,30 +33,35 @@ public class ExamplesMeta {
     private Map<Integer,String> responses;
     public Map<Integer,String> getResponses() { return this.responses; }
 
-    public ExamplesMeta(PlyConfig plyConfig, PlyMethod plyMethod) throws IOException {
+    public ExamplesMeta(PlyConfig plyConfig, PlyMethod plyMethod, boolean isExamplesFromActual) throws IOException {
         this.plyConfig = plyConfig;
         if (plyMethod.getRequest() != null && !plyMethod.getRequest().isEmpty()) {
-            PlyResult expectedResult = this.getExpectedResult(plyMethod.getRequest());
-            if (expectedResult != null && expectedResult.request != null) {
-                this.request = expectedResult.request.body;
+            PlyResult result = this.getResult(plyMethod.getRequest(), isExamplesFromActual);
+            if (result != null && result.request != null) {
+                this.request = result.request.body;
             }
         }
 
         if (plyMethod.getResponses() != null && plyMethod.getResponses().length > 0) {
             for (String response : plyMethod.getResponses()) {
                 if (!response.isEmpty()) {
-                    PlyResult expectedResult = this.getExpectedResult(response);
-                    if (expectedResult != null && expectedResult.response != null
-                            && expectedResult.response.status != null && expectedResult.response.status.code > 0) {
+                    PlyResult result = this.getResult(response, isExamplesFromActual);
+                    if (result != null && result.response != null
+                            && result.response.status != null && result.response.status.code > 0) {
                         if (this.responses == null) this.responses = new HashMap<>();
-                        this.responses.put(expectedResult.response.status.code, expectedResult.response.body);
+                        this.responses.put(result.response.status.code, result.response.body);
                     }
                 }
             }
         }
     }
 
-    private PlyResult getExpectedResult(String requestPath) throws IOException {
+    /**
+     * Find expected or actual result
+     * @param requestPath
+     * @param isActual actual instead of expected
+     */
+    private PlyResult getResult(String requestPath, boolean isActual) throws IOException {
         int hash = requestPath.lastIndexOf('#');
         if (hash == -1 || hash > requestPath.length() - 1) {
             throw new Error("Ply example path must include '#<requestName>': " +  requestPath);
@@ -71,33 +77,35 @@ public class ExamplesMeta {
             testsPath = new File(plyConfigDir + File.separator + testsPath).toPath().normalize();
         }
         File suiteFile = new File(requestPath.substring(0, hash));
-        Map<String,PlyResult> expectedResults = ExamplesMeta.expectedResults.get(suiteFile);
-        if (expectedResults == null) {
+        Map<String,PlyResult> results = isActual ?
+                ExamplesMeta.actualResults.get(suiteFile) : ExamplesMeta.expectedResults.get(suiteFile);
+        if (results == null) {
             String suiteBaseName = suiteFile.getName().substring(0, suiteFile.getName().lastIndexOf("."));
             Path relPath = testsPath.relativize(suiteFile.toPath()).getParent();
-            String expectedBase = this.plyConfig.expectedLocation + File.separator + (relPath == null ? "" : relPath)
-                    + File.separator + suiteBaseName;
-            if (expectedBase.endsWith(".ply")) expectedBase = expectedBase.substring(0, expectedBase.length() - 4);
-            Path expected = new File(expectedBase + ".yml").toPath();
-            if (!expected.isAbsolute() && !plyConfigInCwd) {
-                expected = new File(plyConfigDir + File.separator + expected).toPath().normalize();
+            String resultsBase = (isActual ? this.plyConfig.actualLocation : this.plyConfig.expectedLocation)
+                    + File.separator + (relPath == null ? "" : relPath) + File.separator + suiteBaseName;
+            if (resultsBase.endsWith(".ply")) resultsBase = resultsBase.substring(0, resultsBase.length() - 4);
+            Path resultsPath = new File(resultsBase + ".yml").toPath();
+            if (!resultsPath.isAbsolute() && !plyConfigInCwd) {
+                resultsPath = new File(plyConfigDir + File.separator + resultsPath).toPath().normalize();
             }
-            if (!expected.toFile().exists()) {
-                String exp = expected.toString();
-                expected = new File(exp.substring(0, exp.lastIndexOf(".")) + ".yaml").toPath();
+            if (!resultsPath.toFile().exists()) {
+                String exp = resultsPath.toString();
+                resultsPath = new File(exp.substring(0, exp.lastIndexOf(".")) + ".yaml").toPath();
             }
-            if (!expected.toFile().exists()) {
-                throw new IOException("Expected result file not found: " + expected.normalize() + " (or .yml)");
+            if (!resultsPath.toFile().exists()) {
+                throw new IOException("Expected result file not found: " + resultsPath.normalize() + " (or .yml)");
             }
-            expectedResults = parseResults(expected.toFile());
-            ExamplesMeta.expectedResults.put(suiteFile, expectedResults);
+            results = parseResults(resultsPath.toFile());
+            if (isActual) ExamplesMeta.actualResults.put(suiteFile, results);
+            else ExamplesMeta.expectedResults.put(suiteFile, results);
         }
         String requestName = requestPath.substring(hash + 1);
-        PlyResult expectedResult = expectedResults.get(requestName);
-        if (expectedResult == null) {
-            throw new IOException("Expected result for " + requestName + " not found");
+        PlyResult result =  results.get(requestName);
+        if (result == null) {
+            throw new IOException((isActual ? "Actual" : "Expected") + " result for " + requestName + " not found");
         }
-        return expectedResult;
+        return result;
     }
 
     private Map<String, PlyResult> parseResults(File resultFile) throws IOException {

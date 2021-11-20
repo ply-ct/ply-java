@@ -78,6 +78,14 @@ public class DocGen {
         return this;
     }
 
+    @Parameter(names = "--examplesFromActual", description = "Sample data from actual requests/responses instead of expected")
+    private boolean examplesFromActual;
+    public boolean isExamplesFromActual() { return this.examplesFromActual; }
+    public DocGen examplesFromActual() {
+        this.examplesFromActual = true;
+        return this;
+    }
+
     @Parameter(description = "openapi_file", required = true)
     private String openApi;
     public String getOpenApi() { return this.openApi; }
@@ -163,7 +171,7 @@ public class DocGen {
 
     protected void addExamples(PlyMethod plyMethod, OpenApi.Operation operation) {
         try {
-            ExamplesMeta examplesMeta = new ExamplesMeta(this.options.getPlyConfig(), plyMethod);
+            ExamplesMeta examplesMeta = new ExamplesMeta(this.options.getPlyConfig(), plyMethod, this.isExamplesFromActual());
             Object requestExample = null;
             if (examplesMeta.getRequest() != null) {
                 if (operation.requestBody == null) {
@@ -235,7 +243,7 @@ public class DocGen {
 
     protected void addCodeSamples(PlyMethod plyMethod, OpenApi.Operation operation, JsonSchemaType schemaType,
                                   Object requestExample, Object responseExample) throws IOException {
-        if (operation.codeSamples != null) return; // samples already added
+        operation.codeSamples = null;
         List<PathChunk> chunks = new ArrayList<>();
         chunks.add(new PathChunk(""));
         String[] pathSegments = plyMethod.getEndpoint().getPath().split("/");
