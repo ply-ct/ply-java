@@ -1,0 +1,6 @@
+testsLocation: src/test/ply
+
+valuesFiles:
+  - src/test/ply/localhost.json
+
+outputFile: src/test/ply/results/actual/ply-results.json

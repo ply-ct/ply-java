@@ -30,10 +30,10 @@
     "/greetings": {
       "get": {
         "summary": "List greetings",
+        "description": "One of them may be untoward.",
         "tags": [
           "Snapi-test"
         ],
-        "description": "One of them may be untoward.",
         "responses": {
           "200": {
             "description": "OK",
@@ -168,10 +168,10 @@
     "/greetings/{name}": {
       "get": {
         "summary": "Retrieve a greeting",
+        "description": "This greeting is very polite",
         "tags": [
           "Snapi-test"
         ],
-        "description": "This greeting is very polite",
         "parameters": [
           {
             "name": "name",
@@ -231,10 +231,10 @@
       },
       "put": {
         "summary": "Update a greeting",
+        "description": "Replaces entire greeting contents",
         "tags": [
           "Snapi-test"
         ],
-        "description": "Replaces entire greeting contents",
         "parameters": [
           {
             "name": "name",

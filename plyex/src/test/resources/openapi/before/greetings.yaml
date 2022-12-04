@@ -5,6 +5,13 @@ info:
 paths:
   /greetings:
     get:
+      parameters:
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+            format: email
       responses:
         '200':
           description: OK

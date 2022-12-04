@@ -13,13 +13,19 @@ public class OpenApi {
     public Map<String, Path> paths;
     public Components components;
     public Auth[] security;
+    public ExternalDoc[] externalDocs;
 
     public static class Path {
+        public String summary;
+        public String description;
+
         public Operation get;
         public Operation post;
         public Operation put;
         public Operation patch;
         public Operation delete;
+
+        public Parameter[] parameters;
 
         public Map<String, Operation> operations() {
             Map<String,Operation> operations = new HashMap<>();
@@ -53,22 +59,37 @@ public class OpenApi {
     }
 
     public static class Operation {
-        public String summary;
-        public String[] tags;
         public String operationId;
+        public String summary;
         public String description;
+        public String[] tags;
+        public ExternalDoc[] externalDocs;
         public Parameter[] parameters;
         public RequestBody requestBody;
         public Map<String, Response> responses;
+        public Boolean deprecated;
+        public SecuritySchemes security;
+        public Server[] servers;
         @SerializedName("x-codeSamples")
         public CodeSample[] codeSamples; // x-codeSamples
         public CodeSample[] getCodeSamples() { return this.codeSamples; }
         public void setCodeSamples(CodeSample[] codeSamples) { this.codeSamples = codeSamples; }
     }
 
+    public static class ExternalDoc {
+        public String description;
+        public String url;
+    }
+
     public static class Response {
         public String description;
+        public Map<String,Header> headers;
         public BodyContent content;
+    }
+
+    public static class Header {
+        String description;
+        Schema schema;
     }
 
     public static class BodyContent {
@@ -89,8 +110,11 @@ public class OpenApi {
         public String getRef() { return ref; }
         public void setRef(String ref) { this.ref = ref; }
         public String type;
+        public String format;
         public Items items;
+        public Items[] allOf;
         public Items[] oneOf;
+        public Items[] anyOf;
         public Schema additionalProperties;
     }
 
@@ -103,6 +127,7 @@ public class OpenApi {
 
     public static class Info {
         public String title;
+        public String description;
         public String version;
         public String termsOfService;
         public Contact contact;
@@ -112,6 +137,7 @@ public class OpenApi {
     public static class Server {
         public String url;
         public String description;
+        public Map<String,Object> variables;
     }
 
     public static class Tag {
@@ -140,6 +166,8 @@ public class OpenApi {
     }
 
     public static class Contact {
+        public String name;
+        public String url;
         public String email;
     }
 
@@ -155,7 +183,7 @@ public class OpenApi {
     
     public static class RequestBody {
         public String description;
-        public boolean required;
+        public Boolean required;
         public BodyContent content;
     }
 
@@ -163,10 +191,16 @@ public class OpenApi {
         public String name;
         public String description;
         public ParamType in;
-        public boolean required;
+        public Boolean required;
+        public Boolean deprecated;
+        public Boolean allowEmptyValue;
+        public String style;
+        public Boolean explode;
+        public Boolean allowReserved;
+
         public Schema schema;
-        public String format;
-        public Object example; // string | number | boolean
+        public Object example; // string | number | Boolean
+        public Map<String,Object> examples;
     }
 
     public enum ParamType {
