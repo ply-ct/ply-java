@@ -24,6 +24,8 @@ public class OpenApi {
         public Operation put;
         public Operation patch;
         public Operation delete;
+        public Operation options;
+        public Operation head;
 
         public Parameter[] parameters;
 
@@ -34,6 +36,8 @@ public class OpenApi {
             if (this.put != null) operations.put("put", this.put);
             if (this.patch != null) operations.put("patch", this.patch);
             if (this.delete != null) operations.put("delete", this.delete);
+            if (this.options != null) operations.put("options", this.options);
+            if (this.head != null) operations.put("head", this.head);
             return operations;
         }
 
@@ -53,6 +57,12 @@ public class OpenApi {
                     break;
                 case "delete":
                     this.delete = operation;
+                    break;
+                case "options":
+                    this.options = operation;
+                    break;
+                case "head":
+                    this.head = operation;
                     break;
             }
         }
@@ -97,9 +107,21 @@ public class OpenApi {
         public JsonMedia applicationJson; // 'application/json'
         public JsonMedia getApplicationJson() { return applicationJson; }
         public void setApplicationJson(JsonMedia applicationJson) { this.applicationJson = applicationJson; }
+
+        @SerializedName("*/*")
+        public AnyMedia starStar; // '*/*' Spring REST declares this if no produces
+        public AnyMedia getStarStar() { return starStar; }
+        public void setStarStar(AnyMedia starStar) { this.starStar = starStar; }
+
     }
 
     public static class JsonMedia {
+        public Schema schema;
+        public Object example; // object | string;
+    }
+
+    //  Springdoc sets */* when no 'produces'
+    public static class AnyMedia {
         public Schema schema;
         public Object example; // object | string;
     }
@@ -123,6 +145,7 @@ public class OpenApi {
         public String ref; // $ref
         public String getRef() { return ref; }
         public void setRef(String ref) { this.ref = ref; }
+        public String type;
     }
 
     public static class Info {
