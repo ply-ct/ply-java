@@ -1,6 +1,12 @@
 package org.plyct.plyex.test.greetings;
 
 import org.plyct.plyex.annotation.Ply;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Null;
 
 public class GreetingsEndpoint {
 
@@ -19,11 +25,14 @@ public class GreetingsEndpoint {
     /**
      * Retrieve a greeting
      * This greeting is very polite
+     * Valid annotations are retained, so test signature matching
      * @return greeting
      */
     @Ply(responses={"src/test/ply/retrieve-greetings.ply.yaml#getGreeting",
             "src/test/ply/retrieve-greetings.ply.yaml#getGreetingNotFound"})
-    public Greeting getGreeting() {
+    public Greeting getGreeting(
+            @Valid @Digits(integer = 0, fraction = 0) @RequestHeader(value = "x-header", required = false) String header,
+            @Valid @RequestParam(value = "param", required = false) String param) {
         // GET /greetings/{name}
         return new Greeting("Hello", "World");
     }

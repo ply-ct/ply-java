@@ -168,7 +168,7 @@
     "/greetings/{name}": {
       "get": {
         "summary": "Retrieve a greeting",
-        "description": "This greeting is very polite",
+        "description": "This greeting is very polite\nValid annotations are retained, so test signature matching",
         "tags": [
           "Snapi-test"
         ],

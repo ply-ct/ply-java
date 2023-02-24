@@ -4,6 +4,7 @@ import org.plyct.plyex.annotation.Ply;
 import org.plyct.plyex.docgen.DocGenException;
 
 import java.lang.reflect.Method;
+import java.util.StringJoiner;
 
 public class PlyMethod {
 
@@ -72,9 +73,12 @@ public class PlyMethod {
         Class clazz = Class.forName(this.packageName + "." + this.className);
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.getName().equals(this.name)) {
-                String methodString = method.toGenericString();
-                int openParen = methodString.indexOf("(");
-                String signature = methodString.substring(methodString.substring(0, openParen).lastIndexOf(".") + 1);
+                // from java 14 method.toShortSignature()
+                StringJoiner sj = new StringJoiner(",", method.getName() + "(", ")");
+                for (Class<?> parameterType : method.getParameterTypes()) {
+                    sj.add(parameterType.getTypeName());
+                }
+                signature = sj.toString();
                 if (signature.equals(this.signature)) {
                     return method;
                 }

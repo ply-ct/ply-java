@@ -60,6 +60,10 @@ public class Plyex {
         int debugIdx = argsList.indexOf("--debug");
         boolean debug = debugIdx >= 0 && (argsList.size() == debugIdx + 1 || !"false".equals(argsList.get(debugIdx)));
 
+        if (debug) {
+            System.out.println("Java version: " + System.getProperty("java.version"));
+        }
+
         try {
             PlyexOptions options = new PlyexOptions();
             DocGen docGen = new DocGen(options);

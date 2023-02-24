@@ -176,7 +176,9 @@ paths:
   /greetings/{name}:
     get:
       summary: Retrieve a greeting
-      description: This greeting is very polite
+      description: |-
+        This greeting is very polite
+        Valid annotations are retained, so test signature matching
       parameters:
         - name: name
           in: path
