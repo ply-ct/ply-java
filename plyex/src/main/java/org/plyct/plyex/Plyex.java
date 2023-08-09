@@ -4,6 +4,7 @@ import com.beust.jcommander.JCommander;
 import com.google.gson.Gson;
 import org.plyct.plyex.docgen.DocGen;
 import org.plyct.plyex.util.Json;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -35,7 +36,7 @@ public class Plyex {
             if (Json.isJson(plyConfigFile.toPath(), configContents)) {
                 plyConfig = new Gson().fromJson(configContents, PlyConfig.class);
             } else {
-                plyConfig = new Yaml(new Constructor(PlyConfig.class)).load(configContents);
+                plyConfig = new Yaml(new Constructor(PlyConfig.class, new LoaderOptions())).load(configContents);
             }
             if (!plyConfig.verbose) plyConfig.verbose = options.isDebug();
             if (plyConfig.prettyIndent == 2 && options.getIndent() != 2) {

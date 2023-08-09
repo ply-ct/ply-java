@@ -1,6 +1,7 @@
 package org.plyct.plyex.openapi;
 
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
@@ -24,14 +25,15 @@ public class YamlDoc implements ApiDoc {
     private final DumperOptions dumperOptions;
 
     public YamlDoc() {
-        this.constructor = new Constructor(OpenApi.class);
-        this.representer = new Representer();
+        this.constructor = new Constructor(OpenApi.class, new LoaderOptions());
 
         this.dumperOptions = new DumperOptions();
         this.dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         this.dumperOptions.setPrettyFlow(true);
         this.dumperOptions.setSplitLines(false);
         this.dumperOptions.setIndentWithIndicator(true);
+
+        this.representer = new Representer(this.dumperOptions);
 
         this.addCustomTypeDescription(OpenApi.BodyContent.class);
         this.addCustomTypeDescription(OpenApi.Schema.class);
@@ -72,8 +74,8 @@ public class YamlDoc implements ApiDoc {
     }
 
     class Representer extends org.yaml.snakeyaml.representer.Representer {
-        public Representer() {
-            super();
+        public Representer(DumperOptions dumperOptions) {
+            super(dumperOptions);
             setPropertyUtils(new PropertyUtils() {
                 @Override
                 protected Set<Property> createPropertySet(Class<? extends Object> type, BeanAccess bAccess) {

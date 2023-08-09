@@ -14,14 +14,14 @@ public class Endpoint {
         this.method = method;
         this.path = path;
         if (!this.path.startsWith("/")) this.path = "/" + this.path;
-        if (this.path.length() > 1 && this.path.endsWith("/")) this.path = this.path.substring(0, this.path.length());
+        if (this.path.length() > 1 && this.path.endsWith("/")) this.path = this.path.substring(0, this.path.length() - 1);
     }
 
     private Method method;
     public Method getMethod() { return this.method; }
 
     /**
-     * Path parameters are indicated by curly braces (eg: /greetings/{name}.
+     * Path parameters are indicated by curly braces (eg: /greetings/{name}).
      * Normalized in constructor to always start with / and with no trailing /.
      */
     private String path;

@@ -3,6 +3,7 @@ package org.plyct.plyex.docgen;
 import org.plyct.plyex.PlyConfig;
 import org.plyct.plyex.PlyMethod;
 import org.plyct.plyex.PlyResult;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -119,7 +120,7 @@ public class ExamplesMeta {
                 builder.append(line).append("\n");
             }
 
-            Yaml yaml = new Yaml(new Constructor(PlyResults.class));
+            Yaml yaml = new Yaml(new Constructor(PlyResults.class, new LoaderOptions()));
             try {
                 PlyResults plyResults = yaml.load(builder.toString());
                 return plyResults.results;

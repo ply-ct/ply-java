@@ -1,7 +1,6 @@
 package org.plyct.plyex;
 
 import com.beust.jcommander.Parameter;
-import org.plyct.plyex.docgen.DocGen;
 
 public class PlyexOptions {
 
@@ -29,7 +28,7 @@ public class PlyexOptions {
     public String getPlyConfigPath() { return plyConfigPath; }
 
     private PlyConfig plyConfig;
-    public PlyConfig getPlyConfig() { return this.plyConfig; };
+    public PlyConfig getPlyConfig() { return this.plyConfig; }
     public void setPlyConfig(PlyConfig plyConfig) { this.plyConfig = plyConfig; }
 
 }
