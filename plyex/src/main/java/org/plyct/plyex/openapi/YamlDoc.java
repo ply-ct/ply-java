@@ -25,7 +25,9 @@ public class YamlDoc implements ApiDoc {
     private final DumperOptions dumperOptions;
 
     public YamlDoc() {
-        this.constructor = new Constructor(OpenApi.class, new LoaderOptions());
+        LoaderOptions loaderOptions = new LoaderOptions();
+        loaderOptions.setMaxAliasesForCollections(100);
+        this.constructor = new Constructor(OpenApi.class, loaderOptions);
 
         this.dumperOptions = new DumperOptions();
         this.dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
@@ -46,9 +48,11 @@ public class YamlDoc implements ApiDoc {
     private void addCustomTypeDescription(Class<? extends Object> clazz) {
         TypeDescription typeDescription = new TypeDescription(clazz);
         typeDescription.substituteProperty("application/json", clazz, "getApplicationJson", "setApplicationJson");
+        typeDescription.substituteProperty("application/xml", clazz, "getApplicationXml", "setApplicationXml");
+        typeDescription.substituteProperty("*/*", clazz, "getStarStar", "setStarStar");
         typeDescription.substituteProperty("$ref", clazz, "getRef", "setRef");
         typeDescription.substituteProperty("x-codeSamples", clazz, "getCodeSamples", "setCodeSamples");
-        typeDescription.setExcludes("applicationJson", "ref", "codeSamples");
+        typeDescription.setExcludes("applicationJson", "applicationXml", "starStar", "ref", "codeSamples");
         constructor.addTypeDescription(typeDescription);
         representer.addTypeDescription(typeDescription);
     }
@@ -128,6 +132,10 @@ public class YamlDoc implements ApiDoc {
         public Property getProperty(String name) {
             if (name.equals("application/json")) {
                 return super.getProperty("applicationJson");
+            } else if (name.equals("application/xml")) {
+                return super.getProperty("applicationXml");
+            } else if (name.equals("*/*")) {
+                return super.getProperty("starStar");
             } else if (name.equals("$ref")) {
                 return super.getProperty("ref");
             } else if (name.equals("x-codeSamples")) {

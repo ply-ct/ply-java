@@ -108,6 +108,11 @@ public class OpenApi {
         public JsonMedia getApplicationJson() { return applicationJson; }
         public void setApplicationJson(JsonMedia applicationJson) { this.applicationJson = applicationJson; }
 
+        @SerializedName("application/xml")
+        public XmlMedia applicationXml; // 'application/xml'
+        public XmlMedia getApplicationXml() { return applicationXml; }
+        public void setApplicationXml(XmlMedia applicationXml) { this.applicationXml = applicationXml; }
+
         @SerializedName("*/*")
         public AnyMedia starStar; // '*/*' Spring REST declares this if no produces
         public AnyMedia getStarStar() { return starStar; }
@@ -116,6 +121,11 @@ public class OpenApi {
     }
 
     public static class JsonMedia {
+        public Schema schema;
+        public Object example; // object | string;
+    }
+
+    public static class XmlMedia {
         public Schema schema;
         public Object example; // object | string;
     }

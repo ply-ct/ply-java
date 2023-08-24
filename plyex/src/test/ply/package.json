@@ -3,9 +3,9 @@
   "version": "0.1.1",
   "description": "Ply tests for ply-java",
   "engines": {
-    "node": ">=12"
+    "node": ">=16"
   },
   "devDependencies": {
-    "@ply-ct/ply": "^3.0.19"
+    "@ply-ct/ply": "^3.2.9"
   }
 }

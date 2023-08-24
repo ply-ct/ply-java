@@ -36,7 +36,9 @@ public class Plyex {
             if (Json.isJson(plyConfigFile.toPath(), configContents)) {
                 plyConfig = new Gson().fromJson(configContents, PlyConfig.class);
             } else {
-                plyConfig = new Yaml(new Constructor(PlyConfig.class, new LoaderOptions())).load(configContents);
+                LoaderOptions loaderOptions = new LoaderOptions();
+                loaderOptions.setMaxAliasesForCollections(100);
+                plyConfig = new Yaml(new Constructor(PlyConfig.class, loaderOptions)).load(configContents);
             }
             if (!plyConfig.verbose) plyConfig.verbose = options.isDebug();
             if (plyConfig.prettyIndent == 2 && options.getIndent() != 2) {
