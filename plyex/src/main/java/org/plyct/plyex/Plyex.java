@@ -10,9 +10,11 @@ import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import java.util.jar.Manifest;
 
 public class Plyex {
 
@@ -56,6 +58,23 @@ public class Plyex {
         }
         plyConfig.file = plyConfigFile;
         return plyConfig;
+    }
+
+    public static String getPlyexVersion() {
+        try {
+            String classFileName = Plyex.class.getSimpleName() + ".class";
+            URL classResourceUrl = Plyex.class.getResource(classFileName);
+            if (classResourceUrl != null) {
+                String pathToClass = classResourceUrl.toString();
+                int bang = pathToClass.indexOf("!");
+                String pathToManifest = pathToClass.substring(0, bang + 1) + "/META-INF/MANIFEST.MF";
+                Manifest manifest = new Manifest(new URL(pathToManifest).openStream());
+                return manifest.getMainAttributes().getValue("Plyex-Version");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return "unknown";
     }
 
     public static void main(String[] args) throws ArgsException {

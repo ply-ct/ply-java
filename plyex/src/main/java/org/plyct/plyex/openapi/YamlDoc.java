@@ -48,11 +48,15 @@ public class YamlDoc implements ApiDoc {
     private void addCustomTypeDescription(Class<? extends Object> clazz) {
         TypeDescription typeDescription = new TypeDescription(clazz);
         typeDescription.substituteProperty("application/json", clazz, "getApplicationJson", "setApplicationJson");
+        typeDescription.substituteProperty("text/plain", clazz, "getTextPlain", "setTextPlain");
+        typeDescription.substituteProperty("text/csv", clazz, "getTextCsv", "setTextCsv");
         typeDescription.substituteProperty("application/xml", clazz, "getApplicationXml", "setApplicationXml");
+        typeDescription.substituteProperty("application/octet-stream", clazz, "getApplicationOctetStream", "setApplicationOctetStream");
+        typeDescription.substituteProperty("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", clazz, "getApplicationXlsx", "setApplicationXlsx");
         typeDescription.substituteProperty("*/*", clazz, "getStarStar", "setStarStar");
         typeDescription.substituteProperty("$ref", clazz, "getRef", "setRef");
         typeDescription.substituteProperty("x-codeSamples", clazz, "getCodeSamples", "setCodeSamples");
-        typeDescription.setExcludes("applicationJson", "applicationXml", "starStar", "ref", "codeSamples");
+        typeDescription.setExcludes("applicationJson", "textPlain", "textCsv", "applicationXml", "applicationOctetStream", "applicationXlsx", "starStar", "ref", "codeSamples");
         constructor.addTypeDescription(typeDescription);
         representer.addTypeDescription(typeDescription);
     }
@@ -132,12 +136,22 @@ public class YamlDoc implements ApiDoc {
         public Property getProperty(String name) {
             if (name.equals("application/json")) {
                 return super.getProperty("applicationJson");
+            } else if (name.equals("text/plain")) {
+                return super.getProperty("textPlain");
+            } else if (name.equals("text/csv")) {
+                return super.getProperty("textCsv");
             } else if (name.equals("application/xml")) {
                 return super.getProperty("applicationXml");
+            } else if (name.equals("application/octet-stream")) {
+                return super.getProperty("applicationOctetStream");
+            } else if (name.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+                return super.getProperty("applicationXlsx");
             } else if (name.equals("*/*")) {
                 return super.getProperty("starStar");
             } else if (name.equals("$ref")) {
                 return super.getProperty("ref");
+            } else if (name.equals("enum")) {
+                return super.getProperty("enumVals");
             } else if (name.equals("x-codeSamples")) {
                 return super.getProperty("codeSamples");
             }

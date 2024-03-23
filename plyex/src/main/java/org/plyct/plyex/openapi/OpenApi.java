@@ -104,34 +104,43 @@ public class OpenApi {
 
     public static class BodyContent {
         @SerializedName("application/json")
-        public JsonMedia applicationJson; // 'application/json'
-        public JsonMedia getApplicationJson() { return applicationJson; }
-        public void setApplicationJson(JsonMedia applicationJson) { this.applicationJson = applicationJson; }
+        public MediaType applicationJson; // 'application/json'
+        public MediaType getApplicationJson() { return applicationJson; }
+        public void setApplicationJson(MediaType applicationJson) { this.applicationJson = applicationJson; }
+
+        @SerializedName("text/plain")
+        public MediaType textPlain; // 'text/plain'
+        public MediaType getTextPlain() { return textPlain; }
+        public void setTextPlain(MediaType textPlain) { this.textPlain = textPlain; }
+
+        @SerializedName("text/csv")
+        public MediaType textCsv; // 'textCsv'
+        public MediaType getTextCsv() { return textCsv; }
+        public void setTextCsv(MediaType textCsv) { this.textCsv = textCsv; }
 
         @SerializedName("application/xml")
-        public XmlMedia applicationXml; // 'application/xml'
-        public XmlMedia getApplicationXml() { return applicationXml; }
-        public void setApplicationXml(XmlMedia applicationXml) { this.applicationXml = applicationXml; }
+        public MediaType applicationXml; // 'application/xml'
+        public MediaType getApplicationXml() { return applicationXml; }
+        public void setApplicationXml(MediaType applicationXml) { this.applicationXml = applicationXml; }
+
+        @SerializedName("application/octet-stream")
+        public MediaType applicationOctetStream; // 'application/octet-stream'
+        public MediaType getApplicationOctetStream() { return applicationOctetStream; }
+        public void setApplicationOctetStream(MediaType applicationOctetStream) { this.applicationOctetStream = applicationOctetStream; }
+
+        @SerializedName("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        public MediaType applicationXlsx; // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        public MediaType getApplicationXlsx() { return applicationXlsx; }
+        public void setApplicationXlsx(MediaType applicationXlsx) { this.applicationXlsx = applicationXlsx; }
 
         @SerializedName("*/*")
-        public AnyMedia starStar; // '*/*' Spring REST declares this if no produces
-        public AnyMedia getStarStar() { return starStar; }
-        public void setStarStar(AnyMedia starStar) { this.starStar = starStar; }
+        public MediaType starStar; // '*/*' Spring REST declares this if no produces
+        public MediaType getStarStar() { return starStar; }
+        public void setStarStar(MediaType starStar) { this.starStar = starStar; }
 
     }
 
-    public static class JsonMedia {
-        public Schema schema;
-        public Object example; // object | string;
-    }
-
-    public static class XmlMedia {
-        public Schema schema;
-        public Object example; // object | string;
-    }
-
-    //  Springdoc sets */* when no 'produces'
-    public static class AnyMedia {
+    public static class MediaType {
         public Schema schema;
         public Object example; // object | string;
     }
@@ -141,6 +150,7 @@ public class OpenApi {
         public String ref; // $ref
         public String getRef() { return ref; }
         public void setRef(String ref) { this.ref = ref; }
+
         public String type;
         public String format;
         public Items items;
@@ -148,6 +158,11 @@ public class OpenApi {
         public Items[] oneOf;
         public Items[] anyOf;
         public Schema additionalProperties;
+
+        @SerializedName("enum")
+        public String[] enumVals;
+        public String[] getEnumVals() { return this.enumVals; }
+        public void setEnumVals(String[] enumVals) { this.enumVals = enumVals; }
     }
 
     public static class Items {
@@ -155,6 +170,7 @@ public class OpenApi {
         public String ref; // $ref
         public String getRef() { return ref; }
         public void setRef(String ref) { this.ref = ref; }
+
         public String type;
     }
 

@@ -182,7 +182,7 @@ public class DocGen {
                     operation.requestBody.content = new OpenApi.BodyContent();
                 }
                 if (operation.requestBody.content.applicationJson == null) {
-                    operation.requestBody.content.applicationJson = new OpenApi.JsonMedia();
+                    operation.requestBody.content.applicationJson = new OpenApi.MediaType();
                 }
                 requestExample = this.example(plyMethod.getEndpoint(), examplesMeta.getRequest(), false);
                 operation.requestBody.content.applicationJson.example = requestExample;
@@ -201,7 +201,7 @@ public class DocGen {
                         openApiResponse.content = new OpenApi.BodyContent();
                     }
                     if (openApiResponse.content.applicationJson == null) {
-                        openApiResponse.content.applicationJson = new OpenApi.JsonMedia();
+                        openApiResponse.content.applicationJson = new OpenApi.MediaType();
                     }
                     String response = examplesMeta.getResponses().get(code);
                     openApiResponse.content.applicationJson.example = this.example(plyMethod.getEndpoint(),

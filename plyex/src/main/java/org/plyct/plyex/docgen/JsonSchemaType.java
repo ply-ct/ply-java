@@ -7,7 +7,7 @@ public class JsonSchemaType {
     private String schemaType;
     public String getSchemaType() { return schemaType; }
 
-    public JsonSchemaType(OpenApi.JsonMedia jsonPayload) {
+    public JsonSchemaType(OpenApi.MediaType jsonPayload) {
         OpenApi.Schema schema = jsonPayload.schema;
         if (schema != null) {
             String ref = schema.ref;
